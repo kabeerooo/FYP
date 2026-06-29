@@ -1,8 +1,9 @@
-﻿# Virtual environments (NEVER upload these!)
+# Virtual environments (NEVER upload these!)
 .venv/
 .venv311/
 venv/
 env/
+tf311_fyp/
 
 # Python cache
 __pycache__/
@@ -20,4 +21,13 @@ __pycache__/
 # IDE folders
 .vscode/
 .idea/
-tf311_fyp/
+
+# Sensitive files — NEVER commit these
+backend/firebase-service-account.json
+backend/.env
+"key for app passwords.txt"
+key for app passwords.txt
+
+# Debug/test pages
+backend/test_market_cap.html
+backend/debug_market_cap.html

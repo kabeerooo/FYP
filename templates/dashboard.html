@@ -799,8 +799,10 @@
             const d = [];
             let v = 40 + Math.random() * 20;
             for (let i = 0; i < pts; i++) {
-                v += (Math.random() - (trend === 'up' ? 0.42 : trend === 'down' ? 0.58 : 0.5)) * 5;
-                v = Math.max(8, Math.min(92, v));
+                // Occasional sharp spike for a realistic chart look
+                const spike = Math.random() < 0.15 ? (Math.random() - 0.5) * 18 : 0;
+                v += (Math.random() - (trend === 'up' ? 0.42 : trend === 'down' ? 0.58 : 0.5)) * 10 + spike;
+                v = Math.max(5, Math.min(95, v));
                 d.push(v);
             }
             return d;
@@ -862,7 +864,7 @@
         async function fetchStockData(symbols) {
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8000);
+                const timeoutId = setTimeout(() => controller.abort(), 20000);
                 const resp = await fetch(`${API_BASE}/api/stock/batch`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1318,11 +1320,10 @@
             setDate();
             initScrollReveal();
 
-            const stockSymbols = [...STOCKS, 'MSFT', 'GOOGL', 'AMZN', 'META', 'AMD'];
+            // Phase 1: load only the 4 core stocks + news — render immediately
             await Promise.all([
-                fetchStockData(stockSymbols),
-                fetchNews(),
-                fetchPredictions()
+                fetchStockData([...STOCKS]),
+                fetchNews()
             ]);
 
             renderTicker();
@@ -1333,6 +1334,10 @@
             renderSidebarWatchlist();
             updatePortfolio();
             drawPortfolioBg();
+
+            // Phase 2: load extras in background; also re-render predictions in case phase 1 timed out
+            fetchStockData(['MSFT', 'GOOGL', 'AMZN', 'META', 'AMD'])
+                .then(() => { renderTicker(); renderPredictions(); renderWatchlist(); });
         }
 
         document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
@@ -1351,6 +1356,8 @@
             const stockSymbols = [...STOCKS, 'MSFT', 'GOOGL', 'AMZN', 'META', 'AMD'];
             await fetchStockData(stockSymbols);
             renderTicker();
+            renderPredictions();
+            renderWatchlist();
             updatePortfolio();
             renderSidebarWatchlist();
         }, 120000);

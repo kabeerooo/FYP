@@ -1322,9 +1322,7 @@ except ImportError:
 def _fetch_stock_via_yfinance(symbol: str, include_volume: bool = False) -> dict:
     try:
         stock = yf.Ticker(symbol)
-        hist = stock.history(period="1d", interval="1m")
-        if hist.empty:
-            hist = stock.history(period="2d")
+        hist = stock.history(period="5d")
         if hist.empty:
             return {"error": f"No data available for {symbol}"}
 
@@ -1622,45 +1620,83 @@ async def get_stock_batch(request: BatchStockRequest):
 
 @app.get("/api/stock/{symbol}/history")
 async def get_stock_history(symbol: str):
-    """Get intraday historical price data for charting"""
+    """5-min bar intraday chart — spiky & clean for all assets"""
     try:
         print(f"📈 Fetching intraday history for {symbol}...")
-        
-        # Fetch 1-day data with 1-minute intervals
-        stock = yf.Ticker(symbol)
-        hist = stock.history(period="1d", interval="1m")
-        
-        if hist.empty:
-            # Fallback to 5-day data with 5-minute intervals
-            hist = stock.history(period="5d", interval="5m")
-        
+
+        def _fetch():
+            stock = yf.Ticker(symbol)
+            # Futures/commodities trade ~23h/day → 5m gives ~276 pts (already spiky)
+            # Regular stocks trade 6.5h/day → 1m gives 390 pts to match spike density
+            _FUTURES = {"GC=F", "SI=F", "CL=F", "BTC-USD", "ETH-USD"}
+            interval = "5m" if symbol.upper() in _FUTURES else "1m"
+            hist = stock.history(period="1d", interval=interval)
+            if hist.empty:
+                hist = stock.history(period="5d", interval="15m")
+            return hist
+
+        hist = await asyncio.to_thread(_fetch)
+
         if hist.empty:
             raise HTTPException(status_code=404, detail=f"No historical data available for {symbol}")
-        
-        # Convert to list of price points
-        prices = []
-        for index, row in hist.iterrows():
-            prices.append({
-                'timestamp': index.isoformat(),
+
+        prices = [
+            {
+                'timestamp': idx.isoformat(),
                 'price': float(row['Close']),
-                'volume': int(row['Volume']),
+                'volume': int(row['Volume']) if 'Volume' in row and row['Volume'] == row['Volume'] else 0,
                 'open': float(row['Open']),
                 'high': float(row['High']),
                 'low': float(row['Low'])
-            })
-        
-        print(f"✅ Loaded {len(prices)} historical data points for {symbol}")
-        
+            }
+            for idx, row in hist.iterrows()
+        ]
+
+        print(f"✅ {len(prices)} price points for {symbol}")
+
         return {
             "symbol": symbol,
             "prices": prices,
             "period": "1d",
-            "interval": "1m" if len(prices) > 100 else "5m"
+            "interval": "5m"
         }
-        
+
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"❌ Error fetching history for {symbol}: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching historical data: {str(e)}")
+
+
+@app.get("/api/stock/{symbol}/marketcap")
+async def get_stock_marketcap(symbol: str):
+    """Lightweight market cap fetch using yfinance fast_info"""
+    _NO_MCAP = {"GC=F", "SI=F", "CL=F", "BTC-USD", "ETH-USD"}
+    if symbol.upper() in _NO_MCAP:
+        return {"symbol": symbol, "market_cap": 0}
+    try:
+        def _fetch():
+            ticker = yf.Ticker(symbol)
+            # Try fast_info first (fast)
+            try:
+                mc = getattr(ticker.fast_info, 'market_cap', None)
+                if mc and mc > 0:
+                    return int(mc)
+            except Exception:
+                pass
+            # Fall back to info dict (slower but reliable)
+            try:
+                mc = ticker.info.get('marketCap') or ticker.info.get('market_cap') or 0
+                if mc and mc > 0:
+                    return int(mc)
+            except Exception:
+                pass
+            return 0
+        market_cap = await asyncio.to_thread(_fetch)
+        return {"symbol": symbol, "market_cap": market_cap}
+    except Exception as e:
+        print(f"⚠️ market cap fetch failed for {symbol}: {e}")
+        return {"symbol": symbol, "market_cap": 0}
 
 
 @app.get("/api/stock/{symbol}/news")

@@ -1,0 +1,51 @@
+# Virtual environments
+tf311_fyp/
+.venv/
+.venv311/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs and temporary files
+*.log
+*.tmp
+server_errors.log
+server_output.log
+test_output.txt
+test_all_out.txt
+test_all_err.txt
+
+# Git files
+.git/
+.gitignore
+
+# Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# IDE files
+.vscode/
+.idea/
+
+# Environment files (secrets - don't bake into image)
+.env
+firebase-service-account.json
+key for app passwords.txt
+
+# Test files
+tests/
+test_*.py
+test_*.html
+
+# Documentation
+*.md
+
+# OS files
+.DS_Store
+Thumbs.db

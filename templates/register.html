@@ -702,8 +702,14 @@
                     const data = await response.json();
                     
                     if (response.ok) {
+                        if (data.requires_verification === false) {
+                            // Email service unavailable — user is already verified, go straight to login
+                            window.location.href = "login.html";
+                        } else {
                         sessionStorage.setItem('verificationEmail', email);
+                        localStorage.setItem('verificationEmail', email);
                         window.location.href = "verify_email.html";
+                        }
                     } else {
                         let errorMsg = 'Registration failed';
                         if (data.detail) {

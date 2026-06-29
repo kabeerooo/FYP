@@ -282,9 +282,24 @@
         // Background is CSS-only (bg-animation div)
 
         // Email verification logic
-        const userEmail = sessionStorage.getItem('verificationEmail');
-        if (!userEmail) window.location.href = 'register.html';
-        else document.getElementById('userEmail').textContent = userEmail;
+        // Try sessionStorage first, fall back to localStorage (survives tab close)
+        let userEmail = sessionStorage.getItem('verificationEmail')
+                     || localStorage.getItem('verificationEmail');
+
+        // If no email at all, show an inline input instead of hard-redirecting
+        if (!userEmail) {
+            document.getElementById('userEmail').innerHTML =
+                `<input id="emailFallbackInput" type="email" placeholder="Enter your email"
+                    style="background:transparent;border:none;outline:none;color:#1da1f2;
+                    font-size:1em;width:220px;text-align:center;" />`;
+            document.getElementById('emailDisplay').title = 'Enter the email you registered with';
+            const inp = document.getElementById('emailFallbackInput');
+            inp.focus();
+            inp.addEventListener('change', () => { userEmail = inp.value.trim().toLowerCase(); });
+            inp.addEventListener('input',  () => { userEmail = inp.value.trim().toLowerCase(); });
+        } else {
+            document.getElementById('userEmail').textContent = userEmail;
+        }
 
         const inputs = document.querySelectorAll('.code-input');
         const verifyButton = document.getElementById('verifyButton');
@@ -345,6 +360,7 @@
                 if (response.ok) {
                     showMessage('✅ Email verified! Redirecting...');
                     sessionStorage.removeItem('verificationEmail');
+                    localStorage.removeItem('verificationEmail');
                     setTimeout(() => window.location.href = 'login.html', 2000);
                 } else {
                     showMessage(data.detail || 'Verification failed', true);

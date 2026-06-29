@@ -9,6 +9,7 @@ Fallback to yfinance if Finnhub fails or rate limited
 import finnhub
 import httpx
 import os
+import asyncio
 from dotenv import load_dotenv
 import yfinance as yf
 from datetime import datetime
@@ -22,11 +23,14 @@ finnhub_client = finnhub.Client(api_key=FINNHUB_API_KEY) if FINNHUB_API_KEY else
 # Shared async HTTP client — created once, closed on application shutdown.
 _async_http_client: httpx.AsyncClient | None = None
 
+_FINNHUB_UNSUPPORTED = {"GC=F", "SI=F", "CL=F", "BTC-USD", "ETH-USD"}
+_FINNHUB_DISABLED = False  # set to True on first 401 to skip for rest of session
+
 async def get_async_http_client() -> httpx.AsyncClient:
     """Return the shared async HTTP client, creating it on first call."""
     global _async_http_client
     if _async_http_client is None or _async_http_client.is_closed:
-        _async_http_client = httpx.AsyncClient(timeout=10.0)
+        _async_http_client = httpx.AsyncClient(timeout=2.5)  # fail fast → yfinance fallback
     return _async_http_client
 
 async def close_async_http_client() -> None:
@@ -56,65 +60,73 @@ async def get_stock_quote_async(symbol: str):
         "timestamp": int
     }
     """
+    global _FINNHUB_DISABLED
+
+    def _yfinance_fallback(sym: str):
+        stock = yf.Ticker(sym)
+        hist = stock.history(period="5d")
+        if hist.empty:
+            return None
+        current_price = float(hist["Close"].iloc[-1])
+        prev_close = float(hist["Close"].iloc[-2]) if len(hist) >= 2 else current_price
+        change = current_price - prev_close
+        change_pct = (change / prev_close * 100) if prev_close else 0
+        return {
+            "symbol": sym.upper(),
+            "current_price": current_price,
+            "change": change,
+            "change_percent": change_pct,
+            "high": float(hist["High"].max()),
+            "low": float(hist["Low"].min()),
+            "open": float(hist["Open"].iloc[-1]),
+            "previous_close": prev_close,
+            "volume": int(hist["Volume"].iloc[-1]) if "Volume" in hist else 0,
+            "timestamp": int(datetime.now().timestamp())
+        }
+
+    if symbol.upper() in _FINNHUB_UNSUPPORTED or _FINNHUB_DISABLED:
+        return await asyncio.to_thread(_yfinance_fallback, symbol)
+
     try:
         if not FINNHUB_API_KEY:
             raise Exception("Finnhub API key not configured")
-        
-        # ✅ ASYNC HTTP request to Finnhub (truly non-blocking)
+
         client = await get_async_http_client()
         url = f"https://finnhub.io/api/v1/quote?symbol={symbol}&token={FINNHUB_API_KEY}"
         response = await client.get(url)
-        
+
+        if response.status_code == 401:
+            _FINNHUB_DISABLED = True
+            print("❌ Finnhub API key invalid — disabling Finnhub for this session, using yfinance")
+            raise Exception(f"Finnhub API error: {response.status_code}")
         if response.status_code != 200:
             raise Exception(f"Finnhub API error: {response.status_code}")
-        
+
         quote = response.json()
-        
-        # Check if data is valid
+
         if quote.get('c', 0) == 0:
             raise Exception("Invalid quote data from Finnhub")
-        
-        # ✅ PERFORMANCE FIX: Don't fetch volume from yfinance - it's VERY slow
-        # Volume will be fetched separately only when needed
-        volume = 0
-        
+
         return {
             "symbol": symbol.upper(),
-            "current_price": quote['c'],  # Current price
-            "change": quote['d'],  # Change
-            "change_percent": quote['dp'],  # Percentage change
-            "high": quote['h'],  # Day high
-            "low": quote['l'],  # Day low
-            "open": quote['o'],  # Day open
-            "previous_close": quote['pc'],  # Previous close
-            "volume": volume,  # Will be 0 for now (fast loading more important)
-            "timestamp": quote['t']  # Unix timestamp
+            "current_price": quote['c'],
+            "change": quote['d'],
+            "change_percent": quote['dp'],
+            "high": quote['h'],
+            "low": quote['l'],
+            "open": quote['o'],
+            "previous_close": quote['pc'],
+            "volume": 0,
+            "timestamp": quote['t']
         }
-    
+
     except Exception as e:
-        # Fallback to yfinance using history() — avoids slow .info call
         print(f"⚠️ Finnhub error for {symbol}: {e}, falling back to yfinance")
         try:
-            stock = yf.Ticker(symbol)
-            hist = stock.history(period="2d")
-            if hist.empty:
+            result = await asyncio.to_thread(_yfinance_fallback, symbol)
+            if result is None:
                 raise Exception("No history data from yfinance")
-            current_price = float(hist["Close"].iloc[-1])
-            prev_close = float(hist["Close"].iloc[-2]) if len(hist) >= 2 else current_price
-            change = current_price - prev_close
-            change_pct = (change / prev_close * 100) if prev_close else 0
-            return {
-                "symbol": symbol.upper(),
-                "current_price": current_price,
-                "change": change,
-                "change_percent": change_pct,
-                "high": float(hist["High"].iloc[-1]),
-                "low": float(hist["Low"].iloc[-1]),
-                "open": float(hist["Open"].iloc[-1]),
-                "previous_close": prev_close,
-                "volume": int(hist["Volume"].iloc[-1]) if "Volume" in hist else 0,
-                "timestamp": int(datetime.now().timestamp())
-            }
+            return result
         except Exception as yf_error:
             print(f"❌ Both Finnhub and yfinance failed for {symbol}: {yf_error}")
             return None

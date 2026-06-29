@@ -133,28 +133,34 @@ def register_user(data: RegisterRequest):
         "password_hash": pwd_context.hash(data.password),
         "role": "user",
         "created_at": datetime.utcnow(),
-        "is_verified": False,
+        # Auto-verify immediately when email service is unavailable (local dev)
+        "is_verified": not EMAIL_SERVICE_AVAILABLE,
     })
-    
+
     # Generate and send verification code
     if EMAIL_SERVICE_AVAILABLE:
         code = generate_verification_code()
         print(f"🎯 Using code {code} for both storage and email")
         store_verification_code(doc_ref.id, clean_email, code)
-        # ✅ PERF FIX: fire email in background so HTTP response returns immediately
         threading.Thread(
             target=send_verification_email,
             args=(clean_email, clean_name, code),
             daemon=True
         ).start()
-    
+
     # Log registration
     log_registration(doc_ref.id, clean_email, clean_name)
 
+    msg = (
+        "Registration successful! Please check your email to verify your account."
+        if EMAIL_SERVICE_AVAILABLE
+        else "Registration successful! You can now log in."
+    )
     return {
-        "message": "Registration successful! Please check your email to verify your account.",
+        "message": msg,
         "email": clean_email,
-        "user_id": doc_ref.id
+        "user_id": doc_ref.id,
+        "requires_verification": EMAIL_SERVICE_AVAILABLE,
     }
 
 @router.post("/login")

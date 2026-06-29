@@ -2200,10 +2200,26 @@
                     const data = await response.json();
                     realStockData = data;
                     console.log('Received stock data:', data);
-                    
+
                     // Update UI with real data
                     updateUIWithRealData(metadata, data);
-                    
+
+                    // Fetch market cap separately (non-blocking, doesn't delay chart)
+                    fetch(`/api/stock/${metadata.symbol}/marketcap`)
+                        .then(r => r.json())
+                        .then(mc => {
+                            if (mc.market_cap > 0) {
+                                const cap = mc.market_cap;
+                                let capStr;
+                                if (cap >= 1e12) capStr = `$${(cap/1e12).toFixed(2)}T`;
+                                else if (cap >= 1e9) capStr = `$${(cap/1e9).toFixed(2)}B`;
+                                else if (cap >= 1e6) capStr = `$${(cap/1e6).toFixed(2)}M`;
+                                else capStr = `$${cap.toLocaleString()}`;
+                                document.getElementById('marketCap').textContent = capStr;
+                            }
+                        })
+                        .catch(() => {});
+
                     // Fetch historical data for chart
                     await fetchHistoricalData(metadata.symbol);
                 } else {
