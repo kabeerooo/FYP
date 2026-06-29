@@ -582,16 +582,17 @@
                 password: password
             })
         })
-        .then(response => {
+        .then(async response => {
             if (response.ok) {
                 return response.json();
-            } else {
-                return response.json().then(err => {
-                    throw new Error(err.detail || "Invalid credentials");
-                }).catch(() => {
-                    throw new Error("Login failed. Please try again.");
-                });
             }
+            // Read the error detail without swallowing it in a nested .catch()
+            let detail = "Login failed. Please try again.";
+            try {
+                const err = await response.json();
+                detail = err.detail || detail;
+            } catch (_) {}
+            throw new Error(detail);
         })
         .then(data => {
             // ✅ Clear any previous user's session data first
