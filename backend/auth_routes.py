@@ -14,9 +14,15 @@ import threading
 if not firebase_admin._apps:
     import json
     _fb_json = os.getenv("FIREBASE_SERVICE_ACCOUNT")
+    print(f"🔑 FIREBASE_SERVICE_ACCOUNT present: {bool(_fb_json)}, length: {len(_fb_json) if _fb_json else 0}")
     if _fb_json:
-        # Production: credentials supplied as JSON env var
-        cred = credentials.Certificate(json.loads(_fb_json))
+        try:
+            _cred_dict = json.loads(_fb_json)
+            print(f"✅ Firebase JSON parsed OK (project: {_cred_dict.get('project_id')})")
+            cred = credentials.Certificate(_cred_dict)
+        except Exception as e:
+            print(f"❌ Firebase JSON parse failed: {e}")
+            raise
     else:
         # Local dev: read from file
         cred_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "firebase-service-account.json"))
