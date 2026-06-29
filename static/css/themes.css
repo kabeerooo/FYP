@@ -1,0 +1,372 @@
+/* Universal Theme Styles for NeuroSight */
+/* This file should be included in all pages for consistent theming */
+
+/* Blue Theme Styles */
+body.blue-theme {
+    background-color: #0a1929 !important;
+    color: #e3f2fd !important;
+}
+
+body.blue-theme .bg-animation,
+body.blue-theme #stockAnimation {
+    background: linear-gradient(180deg, #0a1929 0%, #1a2942 100%) !important;
+}
+
+body.blue-theme .navbar {
+    background: rgba(13, 27, 42, 0.95) !important;
+    border-bottom: 1px solid rgba(33, 150, 243, 0.3) !important;
+}
+
+body.blue-theme .nav-link {
+    color: #e3f2fd !important;
+}
+
+body.blue-theme .nav-link:hover,
+body.blue-theme .nav-link.active {
+    color: #42a5f5 !important;
+}
+
+body.blue-theme .nav-logo {
+    color: #42a5f5 !important;
+}
+
+body.blue-theme .sidebar {
+    background: linear-gradient(180deg, #0d1b2a 0%, #1a2942 100%) !important;
+    box-shadow: 4px 0 24px rgba(33, 150, 243, 0.2) !important;
+}
+
+body.blue-theme .menu-section {
+    background: rgba(33, 150, 243, 0.05) !important;
+    border-color: rgba(33, 150, 243, 0.15) !important;
+}
+
+body.blue-theme .profile-section {
+    background: rgba(33, 150, 243, 0.15) !important;
+    border-color: rgba(33, 150, 243, 0.3) !important;
+}
+
+body.blue-theme .profile-avatar {
+    background: linear-gradient(135deg, #2196f3, #1976d2) !important;
+}
+
+body.blue-theme .menu-section-header {
+    color: #e1e8ed !important;
+    border-bottom-color: rgba(33, 150, 243, 0.3) !important;
+}
+
+body.blue-theme .menu-section-header i,
+body.blue-theme .collapse-icon {
+    color: #42a5f5 !important;
+}
+
+body.blue-theme .nav-logo span {
+    color: #1da1f2 !important;
+}
+
+body.blue-theme .menu-toggle {
+    color: #1da1f2 !important;
+}
+
+body.blue-theme .menu-toggle {
+    background: rgba(33, 150, 243, 0.15) !important;
+    border-color: rgba(33, 150, 243, 0.4) !important;
+}
+
+body.blue-theme .menu-toggle span {
+    background: #42a5f5 !important;
+}
+
+body.blue-theme .sidebar-watchlist-item:hover,
+body.blue-theme .news-item:hover {
+    background: rgba(33, 150, 243, 0.15) !important;
+    border-color: rgba(33, 150, 243, 0.4) !important;
+}
+
+body.blue-theme .setting-item:hover {
+    background: rgba(33, 150, 243, 0.1) !important;
+    border-color: rgba(33, 150, 243, 0.3) !important;
+}
+
+body.blue-theme .summary-card,
+body.blue-theme .watchlist-section,
+body.blue-theme .chart-section,
+body.blue-theme .stats-grid,
+body.blue-theme .dashboard-container,
+body.blue-theme .chat-container,
+body.blue-theme .prediction-container,
+body.blue-theme .main-content,
+body.blue-theme .content-wrapper,
+body.blue-theme .card,
+body.blue-theme .asset-card,
+body.blue-theme .watchlist-card {
+    background: rgba(13, 27, 42, 0.8) !important;
+    border-color: rgba(33, 150, 243, 0.2) !important;
+}
+
+body.blue-theme .setting-icon {
+    color: #42a5f5 !important;
+}
+
+body.blue-theme .toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #2196f3, #1976d2) !important;
+    border-color: #2196f3 !important;
+}
+
+body.blue-theme .dashboard-title,
+body.blue-theme .summary-value,
+body.blue-theme .watchlist-title,
+body.blue-theme .stat-value,
+body.blue-theme .chat-title,
+body.blue-theme .prediction-title,
+body.blue-theme h1, body.blue-theme h2, body.blue-theme h3 {
+    color: #e3f2fd !important;
+}
+
+body.blue-theme .profile-name,
+body.blue-theme .sidebar-watchlist-name,
+body.blue-theme .news-title,
+body.blue-theme .help-category-header,
+body.blue-theme .setting-label,
+body.blue-theme .asset-name {
+    color: #e3f2fd !important;
+}
+
+body.blue-theme .profile-email,
+body.blue-theme .sidebar-watchlist-symbol,
+body.blue-theme .news-meta,
+body.blue-theme .help-category-content p,
+body.blue-theme .dashboard-subtitle,
+body.blue-theme .summary-label,
+body.blue-theme p {
+    color: #90caf9 !important;
+}
+
+body.blue-theme .profile-edit {
+    background: rgba(33, 150, 243, 0.15) !important;
+    border-color: rgba(33, 150, 243, 0.3) !important;
+    color: #42a5f5 !important;
+}
+
+body.blue-theme .profile-edit:hover {
+    background: rgba(33, 150, 243, 0.25) !important;
+    border-color: rgba(33, 150, 243, 0.5) !important;
+}
+
+/* Maroon Theme Styles */
+body.maroon-theme {
+    background-color: #1a0a0f !important;
+    color: #f5e6ea !important;
+}
+
+body.maroon-theme .bg-animation,
+body.maroon-theme #stockAnimation {
+    background: linear-gradient(180deg, #1a0a0f 0%, #2d1319 100%) !important;
+}
+
+body.maroon-theme .navbar {
+    background: rgba(26, 10, 15, 0.95) !important;
+    border-bottom: 1px solid rgba(139, 0, 0, 0.3) !important;
+}
+
+body.maroon-theme .nav-link {
+    color: #f5e6ea !important;
+}
+
+body.maroon-theme .nav-link:hover,
+body.maroon-theme .nav-link.active {
+    color: #ff6b9d !important;
+}
+
+body.maroon-theme .nav-logo {
+    color: #ff6b9d !important;
+}
+
+body.maroon-theme .sidebar {
+    background: linear-gradient(180deg, #1a0a0f 0%, #2d1319 100%) !important;
+    box-shadow: 4px 0 24px rgba(139, 0, 0, 0.3) !important;
+}
+
+body.maroon-theme .menu-section {
+    background: rgba(139, 0, 0, 0.1) !important;
+    border-color: rgba(139, 0, 0, 0.2) !important;
+}
+
+body.maroon-theme .profile-section {
+    background: rgba(139, 0, 0, 0.15) !important;
+    border-color: rgba(139, 0, 0, 0.3) !important;
+}
+
+body.maroon-theme .profile-avatar {
+    background: linear-gradient(135deg, #8b0000, #a52a2a) !important;
+}
+
+body.maroon-theme .menu-section-header {
+    color: #e1e8ed !important;
+    border-bottom-color: rgba(139, 0, 0, 0.3) !important;
+}
+
+body.maroon-theme .menu-section-header i,
+body.maroon-theme .collapse-icon {
+    color: #ff6b9d !important;
+}
+
+body.maroon-theme .nav-logo span {
+    color: #1da1f2 !important;
+}
+
+body.maroon-theme .menu-toggle {
+    color: #1da1f2 !important;
+}
+
+body.maroon-theme .menu-toggle {
+    background: rgba(139, 0, 0, 0.15) !important;
+    border-color: rgba(139, 0, 0, 0.4) !important;
+}
+
+body.maroon-theme .menu-toggle span {
+    background: #ff6b9d !important;
+}
+
+body.maroon-theme .sidebar-watchlist-item:hover,
+body.maroon-theme .news-item:hover {
+    background: rgba(139, 0, 0, 0.15) !important;
+    border-color: rgba(139, 0, 0, 0.4) !important;
+}
+
+body.maroon-theme .setting-item:hover {
+    background: rgba(139, 0, 0, 0.1) !important;
+    border-color: rgba(139, 0, 0, 0.3) !important;
+}
+
+body.maroon-theme .summary-card,
+body.maroon-theme .watchlist-section,
+body.maroon-theme .chart-section,
+body.maroon-theme .stats-grid,
+body.maroon-theme .dashboard-container,
+body.maroon-theme .chat-container,
+body.maroon-theme .prediction-container,
+body.maroon-theme .main-content,
+body.maroon-theme .content-wrapper,
+body.maroon-theme .card,
+body.maroon-theme .asset-card,
+body.maroon-theme .watchlist-card {
+    background: rgba(26, 10, 15, 0.8) !important;
+    border-color: rgba(139, 0, 0, 0.2) !important;
+}
+
+body.maroon-theme .setting-icon {
+    color: #ff6b9d !important;
+}
+
+body.maroon-theme .toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #8b0000, #a52a2a) !important;
+    border-color: #8b0000 !important;
+}
+
+body.maroon-theme .dashboard-title,
+body.maroon-theme .summary-value,
+body.maroon-theme .watchlist-title,
+body.maroon-theme .stat-value,
+body.maroon-theme .chat-title,
+body.maroon-theme .prediction-title,
+body.maroon-theme h1, body.maroon-theme h2, body.maroon-theme h3 {
+    color: #f5e6ea !important;
+}
+
+body.maroon-theme .profile-name,
+body.maroon-theme .sidebar-watchlist-name,
+body.maroon-theme .news-title,
+body.maroon-theme .help-category-header,
+body.maroon-theme .setting-label,
+body.maroon-theme .asset-name {
+    color: #f5e6ea !important;
+}
+
+body.maroon-theme .profile-email,
+body.maroon-theme .sidebar-watchlist-symbol,
+body.maroon-theme .news-meta,
+body.maroon-theme .help-category-content p,
+body.maroon-theme .dashboard-subtitle,
+body.maroon-theme .summary-label,
+body.maroon-theme p {
+    color: #d4a5ae !important;
+}
+
+body.maroon-theme .profile-edit {
+    background: rgba(139, 0, 0, 0.15) !important;
+    border-color: rgba(139, 0, 0, 0.3) !important;
+    color: #ff6b9d !important;
+}
+
+body.maroon-theme .profile-edit:hover {
+    background: rgba(139, 0, 0, 0.25) !important;
+    border-color: rgba(139, 0, 0, 0.5) !important;
+}
+
+/* Make sure charts and important text remain visible */
+body.blue-theme canvas,
+body.maroon-theme canvas {
+    filter: brightness(1.1) contrast(1.1);
+}
+
+body.blue-theme .positive,
+body.maroon-theme .positive {
+    color: #17bf63 !important;
+}
+
+body.blue-theme .negative,
+body.maroon-theme .negative {
+    color: #e0245e !important;
+}
+
+/* Chat specific elements */
+body.blue-theme .message-input,
+body.blue-theme .chat-input,
+body.blue-theme textarea,
+body.blue-theme input[type="text"],
+body.blue-theme input[type="email"] {
+    background: rgba(13, 27, 42, 0.6) !important;
+    border-color: rgba(33, 150, 243, 0.3) !important;
+    color: #e3f2fd !important;
+}
+
+body.maroon-theme .message-input,
+body.maroon-theme .chat-input,
+body.maroon-theme textarea,
+body.maroon-theme input[type="text"],
+body.maroon-theme input[type="email"] {
+    background: rgba(26, 10, 15, 0.6) !important;
+    border-color: rgba(139, 0, 0, 0.3) !important;
+    color: #f5e6ea !important;
+}
+
+/* Asset prediction specific */
+body.blue-theme .prediction-card,
+body.blue-theme .price-display,
+body.blue-theme .metric-card {
+    background: rgba(13, 27, 42, 0.8) !important;
+    border-color: rgba(33, 150, 243, 0.2) !important;
+}
+
+body.maroon-theme .prediction-card,
+body.maroon-theme .price-display,
+body.maroon-theme .metric-card {
+    background: rgba(26, 10, 15, 0.8) !important;
+    border-color: rgba(139, 0, 0, 0.2) !important;
+}
+
+/* Button styling */
+body.blue-theme button,
+body.blue-theme .btn {
+    background: rgba(33, 150, 243, 0.15) !important;
+    border-color: rgba(33, 150, 243, 0.3) !important;
+    color: #42a5f5 !important;
+}
+
+body.maroon-theme button,
+body.maroon-theme .btn {
+    background: rgba(139, 0, 0, 0.15) !important;
+    border-color: rgba(139, 0, 0, 0.3) !important;
+    color: #ff6b9d !important;
+}
+

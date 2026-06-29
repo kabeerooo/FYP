@@ -1,0 +1,3491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Prediction - NeuroSight</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/themes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/static/js/theme-loader.js"></script>
+    <link rel="stylesheet" href="/static/css/notifications.css">
+    <style>
+        /* User-friendly, modern financial app styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0f1419;
+            color: #e1e8ed;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Background images for each asset */
+        body {
+            background: linear-gradient(180deg, #0f1419 0%, #192734 100%);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        
+        /* Lighter overlay for readability - 40% instead of 65% */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Asset-specific background images */
+        body.asset-tesla {
+            background-image: url('/static/images/backgrounds/tesla-space.jpg');
+            background-size: cover;
+        }
+        
+        body.asset-gold {
+            background-image: url('/static/images/backgrounds/gold-wealth.jpg');
+            background-size: cover;
+        }
+        
+        body.asset-nvidia {
+            background-image: url('/static/images/backgrounds/nvidia-gaming.jpg');
+            background-size: cover;
+        }
+        
+        body.asset-apple {
+            background-image: url('/static/images/backgrounds/apple-tech.jpg');
+            background-size: cover;
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1da1f2;
+            text-decoration: none;
+            cursor: default;
+            pointer-events: none;
+        }
+        
+        .nav-logo i {
+            margin-right: 12px;
+            color: #1da1f2;
+        }
+        
+        /* Nav menu removed - no styles needed */
+        
+        .asset-container {
+            padding: 100px 24px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            background: rgba(29, 161, 242, 0.15);
+            border: 1px solid rgba(29, 161, 242, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .back-button:hover {
+            color: #ffffff;
+            background: rgba(29, 161, 242, 0.25);
+            border-color: rgba(29, 161, 242, 0.5);
+            transform: translateX(-6px) scale(1.02);
+        }
+        
+        .asset-switcher {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            align-items: center;
+        }
+        
+        .asset-switcher-label {
+            color: #8899a6;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .asset-switch-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(25, 39, 52, 0.6);
+            border-radius: 10px;
+            padding: 4px;
+        }
+        
+        .asset-switch-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: rgba(25, 39, 52, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #e1e8ed;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+        }
+        
+        .asset-switch-btn:hover {
+            background: rgba(29, 161, 242, 0.2);
+            border-color: rgba(29, 161, 242, 0.4);
+            transform: translateY(-2px);
+            color: #1da1f2;
+        }
+        
+        .asset-switch-btn.active {
+            background: rgba(29, 161, 242, 0.15);
+            border-color: rgba(29, 161, 242, 0.5);
+            color: #1da1f2;
+            box-shadow: 0 0 15px rgba(29, 161, 242, 0.3);
+        }
+        
+        .asset-switch-btn i {
+            font-size: 1rem;
+        }
+        
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .asset-title-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .asset-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        
+        .apple-icon {
+            background: rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+        }
+        
+        .tesla-icon {
+            background: rgba(238, 54, 40, 0.2);
+            color: #ee3628;
+        }
+        
+        .bitcoin-icon {
+            background: rgba(247, 147, 26, 0.2);
+            color: #f7931a;
+        }
+        
+        .nvidia-icon {
+            background: rgba(118, 185, 0, 0.2);
+            color: #76b900;
+        }
+        
+        .gold-icon {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+        
+        .asset-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .asset-actions {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background: #1da1f2;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #1a91da;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(29, 161, 242, 0.5);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
+        .btn-secondary {
+            background: rgba(25, 39, 52, 0.6);
+            color: #e1e8ed;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(25, 39, 52, 0.8);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .btn-secondary.in-watchlist {
+            background: rgba(29, 161, 242, 0.1);
+            border-color: rgba(29, 161, 242, 0.3);
+            color: #1da1f2;
+        }
+        
+        .btn-secondary.in-watchlist:hover {
+            background: rgba(29, 161, 242, 0.15);
+            border-color: rgba(29, 161, 242, 0.4);
+        }
+
+        .btn-predict {
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        /* ── Sticky mobile predict button ── */
+        .predict-fab {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            padding: 16px 44px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #1da1f2 0%, #0d8bd9 100%);
+            color: #fff;
+            box-shadow: 0 6px 24px rgba(29,161,242,0.45);
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
+            letter-spacing: 0.3px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .predict-fab:hover {
+            transform: translateX(-50%) translateY(-3px) scale(1.03);
+            box-shadow: 0 10px 32px rgba(29,161,242,0.6);
+        }
+        .predict-fab:active {
+            transform: translateX(-50%) scale(0.97);
+        }
+        .predict-fab.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        .predict-fab .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .predict-fab.loading .spinner { display: block; }
+        .predict-fab.loading .fab-label { display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Move chatbot FAB up so it doesn't overlap predict */
+        .chatbot-btn { bottom: 100px !important; }
+
+        /* ── Trade Recommendation Modal ── */
+        .trade-modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7); z-index: 10000;
+            justify-content: center; align-items: center;
+        }
+        .trade-modal-overlay.show { display: flex; }
+        .trade-modal {
+            background: #192734; border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 16px; width: 90%; max-width: 440px;
+            padding: 28px 24px; position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .trade-modal-close {
+            position: absolute; top: 14px; right: 16px;
+            background: none; border: none; color: #8899a6;
+            font-size: 1.3rem; cursor: pointer;
+        }
+        .trade-modal-close:hover { color: #fff; }
+        .trade-signal {
+            text-align: center; margin-bottom: 20px;
+        }
+        .trade-signal .signal-icon {
+            font-size: 2.5rem; margin-bottom: 8px;
+        }
+        .trade-signal .signal-label {
+            font-size: 1.4rem; font-weight: 700; color: #fff;
+        }
+        .trade-signal .signal-sub {
+            font-size: 0.88rem; color: #8899a6; margin-top: 4px;
+        }
+        .trade-details {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+            margin-bottom: 20px;
+        }
+        .trade-detail-item {
+            background: rgba(15,20,25,0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px; padding: 14px 12px; text-align: center;
+        }
+        .trade-detail-item .td-label { font-size: 0.78rem; color: #8899a6; margin-bottom: 4px; }
+        .trade-detail-item .td-value { font-size: 1.1rem; font-weight: 700; color: #fff; }
+        .trade-risk-bar {
+            height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1);
+            margin: 16px 0 8px;
+        }
+        .trade-risk-fill {
+            height: 100%; border-radius: 3px; transition: width 0.6s ease;
+        }
+        .trade-disclaimer {
+            font-size: 0.76rem; color: #657786; text-align: center;
+            margin-top: 16px; line-height: 1.4;
+        }
+
+        .prediction-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .prediction-status {
+            color: #8899a6;
+            font-size: 0.875rem;
+        }
+
+        .prediction-result {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 10px;
+            background: rgba(25, 39, 52, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .prediction-result.show {
+            display: block;
+        }
+
+        .prediction-result .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #e1e8ed;
+        }
+
+        .prediction-result .result-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .asset-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: rgba(15, 20, 25, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .stat-card:hover {
+            background: rgba(15, 20, 25, 0.95);
+            border-color: rgba(29, 161, 242, 0.4);
+            transform: translateY(-4px);
+        }
+        
+        .stat-label {
+            color: #8899a6;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .stat-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .positive {
+            color: #17bf63;
+        }
+        
+        .negative {
+            color: #e0245e;
+        }
+        
+        .chart-container {
+            background: rgba(15, 20, 25, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            height: 400px;
+            position: relative;
+            cursor: crosshair;
+        }
+        
+        .price-tooltip {
+            position: absolute;
+            background: rgba(15, 20, 25, 0.95);
+            border: 1px solid rgba(29, 161, 242, 0.5);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 1000;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            display: none;
+        }
+        
+        .price-tooltip.show {
+            display: block;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .chart-title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .chart-subtitle {
+            font-size: 0.875rem;
+            color: #8899a6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chart-subtitle .period-info {
+            padding: 4px 8px;
+            background: rgba(29, 161, 242, 0.1);
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .chart-subtitle .change-info {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .chart-subtitle .change-info.positive {
+            background: rgba(23, 191, 99, 0.1);
+            color: #17bf63;
+        }
+        
+        .chart-subtitle .change-info.negative {
+            background: rgba(224, 36, 94, 0.1);
+            color: #e0245e;
+        }
+        
+        .chart-stats-overlay {
+            position: absolute;
+            top: 70px;
+            left: 30px;
+            background: rgba(15, 20, 25, 0.9);
+            border: 1px solid rgba(29, 161, 242, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: none;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .chart-stats-overlay.show {
+            display: block;
+        }
+        
+        .chart-stats-overlay .stat-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+        
+        .chart-stats-overlay .stat-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .chart-stats-overlay .stat-label {
+            color: #8899a6;
+        }
+        
+        .chart-stats-overlay .stat-value {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .chart-canvas {
+            width: 100%;
+            height: calc(100% - 50px);
+        }
+        
+        .prediction-section {
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .prediction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .prediction-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .prediction-placeholder {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8899a6;
+        }
+
+        .prediction-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            color: #1da1f2;
+        }
+
+        /* ── Prediction result cards ── */
+        .prediction-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .pred-card {
+            background: rgba(15, 20, 25, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 18px 14px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        .pred-card:hover { border-color: rgba(29,161,242,0.4); }
+        .pred-card .label { font-size: 0.8rem; color: #8899a6; margin-bottom: 6px; }
+        .pred-card .value { font-size: 1.5rem; font-weight: 700; color: #fff; }
+        .pred-card .sub   { font-size: 0.82rem; margin-top: 4px; }
+        .pred-card .sub.up   { color: #17bf63; }
+        .pred-card .sub.down { color: #e0245e; }
+
+        /* ── Forecast mini-table ── */
+        .forecast-table {
+            width: 100%;
+            margin-top: 18px;
+            border-collapse: collapse;
+        }
+        .forecast-table th,
+        .forecast-table td {
+            padding: 10px 8px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .forecast-table th {
+            color: #8899a6;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-weight: 600;
+        }
+        .forecast-table td {
+            color: #e1e8ed;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .forecast-table .up   { color: #17bf63; }
+        .forecast-table .down { color: #e0245e; }
+
+        /* ── Period Selector Bar ── */
+        .period-selector-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 14px 0 6px;
+            flex-wrap: wrap;
+        }
+        .period-label {
+            font-size: 0.78rem;
+            color: #8899a6;
+            margin-right: 4px;
+            letter-spacing: 0.04em;
+        }
+        .period-btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #8899a6;
+            padding: 5px 13px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.04em;
+        }
+        .period-btn:hover {
+            background: rgba(29,161,242,0.15);
+            border-color: rgba(29,161,242,0.4);
+            color: #1da1f2;
+        }
+        .period-btn.active {
+            background: rgba(29,161,242,0.2);
+            border-color: #1da1f2;
+            color: #1da1f2;
+        }
+
+        /* ── AI Insight items (dynamic) ── */
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 14px;
+            background: rgba(15, 20, 25, 0.5);
+            border-left: 3px solid #1da1f2;
+            border-radius: 0 8px 8px 0;
+        }
+        .insight-item i { color: #1da1f2; margin-top: 3px; font-size: 1rem; }
+        .insight-item p { margin: 0; line-height: 1.55; color: #e1e8ed; font-size: 0.92rem; }
+
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+        }
+        
+        .prediction-card {
+            background: rgba(15, 20, 25, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .prediction-period {
+            color: #8899a6;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+        }
+        
+        .prediction-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .prediction-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .ai-insights {
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .insights-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .insights-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .insights-content {
+            color: #e1e8ed;
+            line-height: 1.6;
+        }
+        
+        .insights-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .insights-point i {
+            color: #1da1f2;
+            margin-top: 4px;
+        }
+        
+        .chatbot-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #1da1f2;
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+        
+        .chatbot-btn:hover {
+            background: #1a91da;
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 8px 20px rgba(29, 161, 242, 0.5);
+        }
+        
+        .chatbot-btn:active {
+            transform: translateY(-2px) scale(1.05);
+        }
+        
+        /* Professional Sidebar Menu */
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            background: rgba(29, 161, 242, 0.15);
+            border: 1px solid rgba(29, 161, 242, 0.3);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 10001;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .menu-toggle:hover {
+            background: rgba(29, 161, 242, 0.25);
+            border-color: rgba(29, 161, 242, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .menu-toggle span {
+            width: 24px;
+            height: 3px;
+            background: #1da1f2;
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+        
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -380px;
+            width: 380px;
+            height: 100vh;
+            background: linear-gradient(180deg, rgba(15, 20, 25, 0.98) 0%, rgba(25, 39, 52, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(29, 161, 242, 0.3);
+            border-radius: 4px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(29, 161, 242, 0.5);
+        }
+        
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .sidebar-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .sidebar-content {
+            padding: 24px;
+        }
+        
+        /* Profile Section */
+        .profile-section {
+            padding: 24px;
+            background: rgba(29, 161, 242, 0.05);
+            border: 1px solid rgba(29, 161, 242, 0.2);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1da1f2 0%, #0d8bd9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 36px;
+            color: white;
+            border: 3px solid rgba(29, 161, 242, 0.3);
+            box-shadow: 0 4px 16px rgba(29, 161, 242, 0.3);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(29, 161, 242, 0.5);
+        }
+        
+        .profile-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        
+        .profile-email {
+            font-size: 0.875rem;
+            color: #8899a6;
+            margin-bottom: 16px;
+        }
+        
+        .edit-profile-btn {
+            padding: 10px 20px;
+            background: rgba(29, 161, 242, 0.15);
+            border: 1px solid rgba(29, 161, 242, 0.3);
+            border-radius: 8px;
+            color: #1da1f2;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .edit-profile-btn:hover {
+            background: rgba(29, 161, 242, 0.25);
+            border-color: rgba(29, 161, 242, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* Menu Sections */
+        .menu-section {
+            margin-bottom: 24px;
+        }
+        
+        .menu-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #8899a6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding-left: 12px;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            color: #e1e8ed;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 8px;
+            text-decoration: none;
+        }
+        
+        .menu-item:hover {
+            background: rgba(29, 161, 242, 0.15);
+            border-color: rgba(29, 161, 242, 0.3);
+            color: #1da1f2;
+            transform: translateX(6px);
+        }
+        
+        .menu-item i {
+            font-size: 1.125rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .menu-item-content {
+            flex: 1;
+        }
+        
+        .menu-item-title {
+            font-weight: 600;
+            font-size: 0.9375rem;
+        }
+        
+        .menu-item-subtitle {
+            font-size: 0.75rem;
+            color: #8899a6;
+            margin-top: 2px;
+        }
+        
+        .menu-item-badge {
+            background: rgba(29, 161, 242, 0.2);
+            color: #1da1f2;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        
+        /* Watchlist */
+        .watchlist-items {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 12px;
+        }
+        
+        .watchlist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(15, 20, 25, 0.6);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .watchlist-item:hover {
+            background: rgba(29, 161, 242, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .watchlist-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .watchlist-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .watchlist-name {
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .watchlist-remove {
+            color: #e0245e;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .watchlist-remove:hover {
+            background: rgba(224, 36, 94, 0.2);
+        }
+        
+        .watchlist-empty {
+            text-align: center;
+            padding: 24px;
+            color: #8899a6;
+            font-size: 0.875rem;
+        }
+        
+        /* News Section */
+        .news-items {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .news-item {
+            padding: 12px;
+            background: rgba(15, 20, 25, 0.6);
+            border-left: 3px solid #1da1f2;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .news-item:hover {
+            background: rgba(29, 161, 242, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .news-title {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 0.875rem;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: #8899a6;
+        }
+        
+        .news-source {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .news-time {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Help Section */
+        .help-items {
+            margin-top: 12px;
+        }
+        
+        .help-category {
+            margin-bottom: 12px;
+        }
+        
+        .help-category-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .help-category-title:hover {
+            background: rgba(29, 161, 242, 0.1);
+            border-color: rgba(29, 161, 242, 0.2);
+        }
+        
+        .help-category-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #e1e8ed;
+        }
+        
+        .help-category-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .help-category-content.open {
+            max-height: 500px;
+        }
+        
+        .help-item {
+            padding: 10px 12px 10px 40px;
+            color: #8899a6;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            border-left: 2px solid rgba(29, 161, 242, 0.2);
+            margin-left: 12px;
+        }
+        
+        /* Settings Section */
+        .settings-items {
+            margin-top: 12px;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px;
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .setting-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .setting-icon {
+            font-size: 1.125rem;
+            color: #1da1f2;
+        }
+        
+        .setting-label {
+            font-weight: 600;
+            color: #e1e8ed;
+            font-size: 0.9375rem;
+        }
+        
+        .setting-description {
+            font-size: 0.75rem;
+            color: #8899a6;
+            margin-top: 2px;
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .toggle-switch.active {
+            background: #1da1f2;
+            border-color: #1da1f2;
+        }
+        
+        .toggle-switch-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: #ffffff;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .toggle-switch.active .toggle-switch-slider {
+            left: 26px;
+        }
+        
+        /* Light Theme */
+        body.light-theme {
+            background-color: #f5f8fa;
+            color: #14171a;
+        }
+        
+        /* Light theme - lighter overlay */
+        body.light-theme::before {
+            background: rgba(255, 255, 255, 0.75);
+        }
+        
+        body.light-theme .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        body.light-theme .nav-link {
+            color: #14171a;
+        }
+        
+        body.light-theme .sidebar {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 243, 244, 0.98) 100%);
+        }
+        
+        body.light-theme .menu-item,
+        body.light-theme .stat-card,
+        body.light-theme .chart-container,
+        body.light-theme .prediction-section,
+        body.light-theme .ai-insights,
+        body.light-theme .asset-switcher {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #14171a;
+        }
+        
+        body.light-theme .stat-label,
+        body.light-theme .menu-item-subtitle,
+        body.light-theme .profile-email {
+            color: #657786;
+        }
+        
+        body.light-theme .stat-value,
+        body.light-theme .asset-title,
+        body.light-theme .profile-name {
+            color: #14171a;
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+            
+            .nav-container {
+                padding: 0 12px;
+            }
+            
+            .nav-logo {
+                font-size: 18px;
+            }
+            
+            .prediction-container {
+                padding: 80px 12px 20px;
+            }
+            
+            .page-header {
+                margin-bottom: 20px;
+            }
+            
+            .back-button {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            
+            .asset-title {
+                font-size: 1.5rem;
+            }
+            
+            .asset-subtitle {
+                font-size: 0.85rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .metric-card {
+                padding: 14px;
+            }
+            
+            .metric-value {
+                font-size: 1.3rem;
+            }
+            
+            .metric-label {
+                font-size: 0.8rem;
+            }
+            
+            .prediction-section {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+            
+            .section-title {
+                font-size: 1.1rem;
+            }
+            
+            .prediction-result {
+                padding: 16px;
+            }
+            
+            .prediction-price {
+                font-size: 1.8rem;
+            }
+            
+            .confidence-meter {
+                height: 6px;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+            .sidebar {
+                width: 320px;
+                left: -320px;
+            }
+            
+            .asset-title {
+                font-size: 2rem;
+            }
+            
+            .asset-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .prediction-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Forecast table scroll wrapper */
+            .forecast-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 -8px;
+                padding: 0 8px;
+            }
+
+            .forecast-table-wrap table {
+                min-width: 500px;
+            }
+
+            .prediction-cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+        }
+
+        /* ── 480px ── Small phones */
+        @media (max-width: 480px) {
+            body {
+                font-size: 13px;
+            }
+
+            .nav-container {
+                padding: 0 8px;
+            }
+
+            .nav-logo {
+                font-size: 16px;
+            }
+
+            .prediction-container {
+                padding: 72px 8px 16px;
+            }
+
+            .asset-title {
+                font-size: 1.3rem;
+            }
+
+            .asset-subtitle {
+                font-size: 0.75rem;
+            }
+
+            .prediction-section {
+                padding: 12px;
+                margin-bottom: 12px;
+                border-radius: 10px;
+            }
+
+            .section-title {
+                font-size: 1rem;
+            }
+
+            .prediction-price {
+                font-size: 1.5rem;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .prediction-cards {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .metric-card {
+                padding: 10px;
+            }
+
+            .metric-value {
+                font-size: 1.1rem;
+            }
+
+            .metric-label {
+                font-size: 0.72rem;
+            }
+
+            .sidebar {
+                width: 280px;
+                left: -280px;
+            }
+
+            .forecast-table-wrap table {
+                min-width: 420px;
+                font-size: 12px;
+            }
+
+            .trade-rec-section {
+                padding: 12px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            /* Insight cards stack */
+            .insight-list {
+                gap: 8px;
+            }
+
+            .insight-card {
+                padding: 10px;
+            }
+        }
+
+        /* ── 360px ── Very small phones */
+        @media (max-width: 360px) {
+            .nav-logo span {
+                display: none;
+            }
+
+            .nav-logo i {
+                font-size: 20px;
+            }
+
+            .asset-title {
+                font-size: 1.15rem;
+            }
+
+            .prediction-container {
+                padding: 68px 6px 12px;
+            }
+
+            .chart-container {
+                height: 220px;
+            }
+
+            .prediction-price {
+                font-size: 1.3rem;
+            }
+
+            .sidebar {
+                width: 100vw;
+                left: -100vw;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>NeuroSight</span>
+            </div>
+            <!-- Navigation menu removed as requested -->
+            <div id="ns-bell-wrap" class="ns-bell-wrap" style="margin-left:12px;">
+                <button class="ns-bell-btn" onclick="nsToggleNotifDropdown()" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span id="ns-bell-badge" class="ns-bell-badge" data-count="0"></span>
+                </button>
+                <div id="ns-notif-dropdown" class="ns-notif-dropdown">
+                    <div class="ns-notif-header"><h4>Notifications</h4><button class="ns-notif-clear" onclick="nsClearNotifications()">Clear all</button></div>
+                    <div id="ns-notif-list" class="ns-notif-list"><div class="ns-notif-empty"><i>🔔</i>No notifications yet</div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="asset-container">
+        <a href="dashboard.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Dashboard</span>
+        </a>
+        
+        <!-- Asset Quick Switcher -->
+        <div class="asset-switcher">
+            <span class="asset-switcher-label">
+                <i class="fas fa-exchange-alt"></i>
+                Quick Switch:
+            </span>
+            <a href="?asset=apple" class="asset-switch-btn" data-asset="apple">
+                <i class="fab fa-apple"></i>
+                <span>Apple</span>
+            </a>
+            <a href="?asset=tesla" class="asset-switch-btn" data-asset="tesla">
+                <i class="fas fa-bolt"></i>
+                <span>Tesla</span>
+            </a>
+            <a href="?asset=nvidia" class="asset-switch-btn" data-asset="nvidia">
+                <i class="fas fa-microchip"></i>
+                <span>NVIDIA</span>
+            </a>
+            <a href="?asset=gold" class="asset-switch-btn" data-asset="gold">
+                <i class="fas fa-coins"></i>
+                <span>Gold</span>
+            </a>
+        </div>
+        
+        <div class="asset-header">
+            <div class="asset-title-section">
+                <div class="asset-icon" id="assetIcon">
+                    <i class="fab fa-apple"></i>
+                </div>
+                <h1 class="asset-title" id="assetTitle">Apple Inc. (AAPL)</h1>
+            </div>
+            
+            <div class="asset-actions">
+                <button class="btn btn-secondary" id="watchlistBtn" onclick="toggleWatchlist()">
+                    <i class="fas fa-star" id="watchlistIcon"></i>
+                    <span id="watchlistText">Add to Watchlist</span>
+                </button>
+                <button class="btn btn-primary" id="tradeBtn" onclick="showTradeRecommendation()">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Trade</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="asset-stats">
+            <div class="stat-card">
+                <div class="stat-label">Current Price</div>
+                <div class="stat-value" id="currentPrice">$178.32</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span id="priceChange">+$4.28 (2.4%) today</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Market Cap</div>
+                <div class="stat-value" id="marketCap">$2.78T</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+$65.2B (2.4%) today</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Volume</div>
+                <div class="stat-value" id="volume">52.3M</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>-8.2% from average</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">52 Week Range</div>
+                <div class="stat-value" id="weekRange">$124 - $198</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>43.7% from low</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-container" id="chartContainer">
+            <div class="chart-header">
+                <div class="chart-title-section">
+                    <h2 class="chart-title">Price Chart</h2>
+                    <div class="chart-subtitle">
+                        <span class="period-info" id="periodInfo">Intraday</span>
+                        <span class="change-info positive" id="periodChange">+2.4%</span>
+                        <span style="color: #8899a6;">High: <span id="periodHigh" style="color: #17bf63;">$180.50</span></span>
+                        <span style="color: #8899a6;">Low: <span id="periodLow" style="color: #e0245e;">$176.20</span></span>
+                        <span style="color: #8899a6;">Vol: <span id="periodVolume" style="color: #1da1f2;">52.3M</span></span>
+                    </div>
+                </div>
+            </div>
+            <canvas id="priceChart" class="chart-canvas"></canvas>
+            <div class="price-tooltip" id="priceTooltip"></div>
+        </div>
+        
+        <div class="prediction-section" id="predictionSection">
+            <div class="prediction-header">
+                <h2 class="prediction-title">
+                    <i class="fas fa-brain" style="color:#1da1f2;margin-right:8px;"></i>AI Price Prediction
+                </h2>
+                <div class="confidence-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span id="confidenceLevel">Tap Predict to start</span>
+                </div>
+            </div>
+
+            <!-- Placeholder (shown before prediction) -->
+            <div class="prediction-placeholder" id="predictionPlaceholder">
+                <i class="fas fa-brain"></i>
+                <h3>AI Prediction Ready</h3>
+                <p>Tap the <strong>Predict</strong> button below to generate a price forecast powered by our deep-learning model. Use the period selector to choose your forecast horizon.</p>
+            </div>
+
+            <!-- Result cards (hidden until prediction) -->
+            <div id="predictionResult" style="display:none;">
+                <div class="prediction-cards">
+                    <div class="pred-card">
+                        <div class="label">Predicted Price (7d)</div>
+                        <div class="value" id="predPriceVal">--</div>
+                        <div class="sub" id="predChangeVal">--</div>
+                    </div>
+                    <div class="pred-card">
+                        <div class="label">Current Price</div>
+                        <div class="value" id="predCurrentVal">--</div>
+                        <div class="sub" style="color:#8899a6;">Live</div>
+                    </div>
+                    <div class="pred-card">
+                        <div class="label">Confidence</div>
+                        <div class="value" id="predConfVal">--</div>
+                        <div class="sub" style="color:#1da1f2;" id="predTrendVal">--</div>
+                    </div>
+                    <div class="pred-card">
+                        <div class="label">Forecast Period</div>
+                        <div class="value" style="font-size:1.2rem;" id="predPeriodVal">7 Days</div>
+                        <div class="sub" style="color:#8899a6;">Rolling LSTM/GRU</div>
+                    </div>
+                </div>
+
+                <!-- Period Selector -->
+                <div class="period-selector-bar" id="periodSelectorBar">
+                    <span class="period-label">Horizon:</span>
+                    <button class="period-btn" onclick="changeForecastPeriod('1d')">1D</button>
+                    <button class="period-btn" onclick="changeForecastPeriod('3d')">3D</button>
+                    <button class="period-btn active" id="periodBtn7d" onclick="changeForecastPeriod('7d')">7D</button>
+                    <button class="period-btn" onclick="changeForecastPeriod('30d')">30D</button>
+                </div>
+
+                <!-- Forecast table -->
+                <div class="forecast-table-wrap">
+                    <table class="forecast-table" id="forecastTable">
+                        <thead>
+                            <tr><th>Day</th><th>Date</th><th>Predicted Price</th><th>Change</th></tr>
+                        </thead>
+                        <tbody id="forecastBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ai-insights" id="aiInsightsSection">
+            <div class="insights-header">
+                <h2 class="insights-title">
+                    <i class="fas fa-lightbulb" style="color:#ffd700;margin-right:8px;"></i>AI Insights
+                </h2>
+            </div>
+            
+            <div class="insights-content" id="insightsContent">
+                <div class="insight-item">
+                    <i class="fas fa-info-circle"></i>
+                    <p>AI insights will appear here after you tap <strong>Predict</strong>. The model analyses technical indicators, volatility and price momentum to generate actionable observations.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ── Floating Predict Button (mobile-friendly) ── -->
+    <button class="predict-fab" id="predictFab" onclick="runPrediction()">
+        <i class="fas fa-bolt"></i>
+        <span class="fab-label">Predict</span>
+        <div class="spinner"></div>
+    </button>
+    
+    <button class="chatbot-btn" onclick="window.location.href='chatbot.html'">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <!-- ── Trade Recommendation Modal ── -->
+    <div class="trade-modal-overlay" id="tradeModalOverlay" onclick="if(event.target===this)closeTradeModal()">
+        <div class="trade-modal">
+            <button class="trade-modal-close" onclick="closeTradeModal()">&times;</button>
+            <div class="trade-signal">
+                <div class="signal-icon" id="tradeSignalIcon">--</div>
+                <div class="signal-label" id="tradeSignalLabel">Run Prediction First</div>
+                <div class="signal-sub" id="tradeSignalSub">Press the Predict button to get a recommendation</div>
+            </div>
+            <div class="trade-details">
+                <div class="trade-detail-item">
+                    <div class="td-label">Entry Price</div>
+                    <div class="td-value" id="tradeEntry">--</div>
+                </div>
+                <div class="trade-detail-item">
+                    <div class="td-label">Target (7d)</div>
+                    <div class="td-value" id="tradeTarget">--</div>
+                </div>
+                <div class="trade-detail-item">
+                    <div class="td-label">Stop Loss</div>
+                    <div class="td-value" id="tradeStop">--</div>
+                </div>
+                <div class="trade-detail-item">
+                    <div class="td-label">Confidence</div>
+                    <div class="td-value" id="tradeConf">--</div>
+                </div>
+            </div>
+            <div style="font-size:0.82rem;color:#8899a6;text-align:center;">Risk Level</div>
+            <div class="trade-risk-bar">
+                <div class="trade-risk-fill" id="tradeRiskFill" style="width:0%;background:#17bf63;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:#657786;">
+                <span>Low</span><span>Medium</span><span>High</span>
+            </div>
+            <div class="trade-disclaimer">
+                This is an AI-generated recommendation for educational purposes only. Always do your own research before making investment decisions.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Background animation removed - using static images
+        /*
+        // Futuristic prediction visualization background
+        const canvas = document.getElementById('stockAnimation');
+        const ctx = canvas?.getContext('2d');
+        
+        function resizeCanvas() {
+            if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Prediction wave (flowing sine waves representing forecasts)
+        class PredictionWave {
+            constructor(yPos) {
+                this.yPos = yPos;
+                this.amplitude = 20 + Math.random() * 15;
+                this.frequency = 0.003 + Math.random() * 0.002;
+                this.speed = 0.01 + Math.random() * 0.01;
+                this.offset = Math.random() * 100;
+                this.opacity = 0.03 + Math.random() * 0.03;
+            }
+            
+            update() {
+                this.offset += this.speed;
+            }
+            
+            draw() {
+                ctx.strokeStyle = `rgba(29, 161, 242, ${this.opacity})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                for (let x = 0; x <= canvas.width; x += 4) {
+                    const y = canvas.height * this.yPos + 
+                             Math.sin(x * this.frequency + this.offset) * this.amplitude;
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                
+                ctx.stroke();
+            }
+        }
+        
+        // AI brain neuron particle
+        class NeuronParticle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.2;
+                this.vy = (Math.random() - 0.5) * 0.2;
+                this.radius = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.4 + 0.2;
+                this.pulseSpeed = Math.random() * 0.03 + 0.01;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.pulsePhase += this.pulseSpeed;
+                
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            
+            draw() {
+                const pulse = Math.sin(this.pulsePhase) * 0.5 + 0.5;
+                const currentOpacity = this.opacity * (0.6 + pulse * 0.4);
+                const currentRadius = this.radius * (0.8 + pulse * 0.2);
+                
+                // Glow effect
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, currentRadius * 2.5);
+                gradient.addColorStop(0, `rgba(29, 161, 242, ${currentOpacity * 0.3})`);
+                gradient.addColorStop(1, `rgba(29, 161, 242, 0)`);
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, currentRadius * 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Core
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, currentRadius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(29, 161, 242, ${currentOpacity})`;
+                ctx.fill();
+            }
+        }
+        
+        // Floating prediction arrow (subtle up/down indicators)
+        class PredictionArrow {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = -30;
+                this.speed = 0.3 + Math.random() * 0.4;
+                this.size = 15 + Math.random() * 10;
+                this.opacity = Math.random() * 0.1 + 0.05;
+                this.isUp = Math.random() > 0.5;
+            }
+            
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height + 30) {
+                    this.y = -30;
+                    this.x = Math.random() * canvas.width;
+                    this.isUp = Math.random() > 0.5;
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                if (!this.isUp) ctx.rotate(Math.PI);
+                
+                const color = this.isUp ? '23, 191, 99' : '224, 36, 94';
+                ctx.fillStyle = `rgba(${color}, ${this.opacity})`;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, -this.size);
+                ctx.lineTo(this.size * 0.6, this.size * 0.3);
+                ctx.lineTo(this.size * 0.3, this.size * 0.3);
+                ctx.lineTo(this.size * 0.3, this.size);
+                ctx.lineTo(-this.size * 0.3, this.size);
+                ctx.lineTo(-this.size * 0.3, this.size * 0.3);
+                ctx.lineTo(-this.size * 0.6, this.size * 0.3);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+        
+        // Soft chart grid overlay
+        class ChartGrid {
+            constructor() {
+                this.opacity = 0.02;
+            }
+            
+            draw() {
+                ctx.strokeStyle = `rgba(29, 161, 242, ${this.opacity})`;
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 15]);
+                
+                // Horizontal lines
+                for (let y = 80; y < canvas.height; y += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+                
+                ctx.setLineDash([]);
+            }
+        }
+        
+        // Initialize elements
+        const predictionWaves = [];
+        for (let i = 0; i < 4; i++) {
+            predictionWaves.push(new PredictionWave(0.2 + i * 0.2));
+        }
+        
+        const neuronParticles = [];
+        for (let i = 0; i < 30; i++) {
+            neuronParticles.push(new NeuronParticle());
+        }
+        
+        const predictionArrows = [];
+        for (let i = 0; i < 6; i++) {
+            const arrow = new PredictionArrow();
+            arrow.y = Math.random() * canvas.height;
+            predictionArrows.push(arrow);
+        }
+        
+        const chartGrid = new ChartGrid();
+        
+        function animate() {
+            if (!canvas) return;
+            
+            // Light fade for smooth animation
+            ctx.fillStyle = 'rgba(15, 20, 25, 0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw chart grid
+            chartGrid.draw();
+            
+            // Draw prediction waves
+            predictionWaves.forEach(wave => {
+                wave.update();
+                wave.draw();
+            });
+            
+            // Draw prediction arrows
+            predictionArrows.forEach(arrow => {
+                arrow.update();
+                arrow.draw();
+            });
+            
+            // Draw neuron particles
+            neuronParticles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // Draw neural connections
+            for (let i = 0; i < neuronParticles.length; i++) {
+                for (let j = i + 1; j < neuronParticles.length; j++) {
+                    const dx = neuronParticles[i].x - neuronParticles[j].x;
+                    const dy = neuronParticles[i].y - neuronParticles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(neuronParticles[i].x, neuronParticles[i].y);
+                        ctx.lineTo(neuronParticles[j].x, neuronParticles[j].y);
+                        ctx.strokeStyle = `rgba(29, 161, 242, ${0.06 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Canvas animation disabled
+        // if (canvas) animate();
+        */
+        
+        // Asset data based on URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const assetType = urlParams.get('asset') || 'apple'; // Default to 'apple' if no asset specified
+        
+        console.log('Current asset type:', assetType);
+        
+        // Apply asset-specific background class
+        document.body.classList.add(`asset-${assetType}`);
+        console.log('Applied background class:', `asset-${assetType}`);
+        
+        // Highlight active asset in switcher
+        document.addEventListener('DOMContentLoaded', () => {
+            const switchButtons = document.querySelectorAll('.asset-switch-btn');
+            switchButtons.forEach(btn => {
+                if (btn.dataset.asset === assetType) {
+                    btn.classList.add('active');
+                    console.log('Highlighted asset:', btn.dataset.asset);
+                }
+            });
+        });
+        
+        // Asset metadata (static info)
+        const assetMetadata = {
+            apple: {
+                name: 'Apple Inc. (AAPL)',
+                symbol: 'AAPL',
+                predictTicker: 'AAPL',
+                icon: 'fab fa-apple',
+                iconClass: 'apple-icon'
+            },
+            tesla: {
+                name: 'Tesla Inc. (TSLA)',
+                symbol: 'TSLA',
+                predictTicker: 'TSLA',
+                icon: 'fas fa-bolt',
+                iconClass: 'tesla-icon'
+            },
+            bitcoin: {
+                name: 'Bitcoin (BTC)',
+                symbol: 'BTC-USD',
+                predictTicker: null,
+                icon: 'fab fa-bitcoin',
+                iconClass: 'bitcoin-icon'
+            },
+            nvidia: {
+                name: 'NVIDIA Corp. (NVDA)',
+                symbol: 'NVDA',
+                predictTicker: 'NVDA',
+                icon: 'fas fa-microchip',
+                iconClass: 'nvidia-icon'
+            },
+            gold: {
+                name: 'Gold (XAU)',
+                symbol: 'GC=F',
+                predictTicker: 'GOLD',
+                icon: 'fas fa-coins',
+                iconClass: 'gold-icon'
+            }
+        };
+        
+        // Global variables for real data
+        let realStockData = null;
+        let historicalPrices = [];
+        
+        // Fetch real stock data from backend
+        async function fetchRealStockData() {
+            const metadata = assetMetadata[assetType];
+            if (!metadata) {
+                console.error(`Asset metadata not found for type: ${assetType}`);
+                return;
+            }
+            
+            try {
+                console.log(`Fetching data for ${metadata.symbol}...`);
+                const response = await fetch(`/api/stock/${metadata.symbol}?include_volume=true`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    realStockData = data;
+                    console.log('Received stock data:', data);
+                    
+                    // Update UI with real data
+                    updateUIWithRealData(metadata, data);
+                    
+                    // Fetch historical data for chart
+                    await fetchHistoricalData(metadata.symbol);
+                } else {
+                    console.error(`Failed to fetch stock data: ${response.status}`);
+                    showErrorState();
+                }
+            } catch (error) {
+                console.error('Error fetching stock data:', error);
+                showErrorState();
+            }
+        }
+        
+        // Fetch historical price data for chart
+        async function fetchHistoricalData(symbol) {
+            try {
+                if (!realStockData) return;
+                
+                const currentPrice = realStockData.current_price;
+                
+                try {
+                    // Fetch real historical intraday data
+                    console.log('Fetching real historical data for chart...');
+                    const histResponse = await fetch(`/api/stock/${symbol}/history`);
+                    
+                    if (histResponse.ok) {
+                        const histData = await histResponse.json();
+                        
+                        if (histData.prices && histData.prices.length > 0) {
+                            // Use real historical data
+                            historicalPrices = histData.prices.map((item, index) => ({
+                                time: index,
+                                price: item.price,
+                                volume: item.volume || 0,
+                                timestamp: new Date(item.timestamp)
+                            }));
+                            
+                            console.log(`✅ Loaded ${historicalPrices.length} real price points`);
+                        } else {
+                            throw new Error('No historical data available');
+                        }
+                    } else {
+                        throw new Error('Failed to fetch historical data');
+                    }
+                } catch (histError) {
+                    console.warn('⚠️ Could not load real historical data, using estimated data:', histError);
+                    
+                    // Fallback: Generate estimated intraday data
+                    const openPrice = realStockData.day_open || currentPrice;
+                    const volume = realStockData.volume ?? realStockData.Volume ?? realStockData.vol ?? realStockData.v ?? 0;
+                    // For commodities (gold), don't generate synthetic volume
+                    const isCommodity = assetType === 'gold' || assetType === 'bitcoin';
+                    
+                    historicalPrices = [];
+                    const points = 100;
+                    const priceRange = currentPrice - openPrice;
+                    
+                    for (let i = 0; i < points; i++) {
+                        const progress = i / (points - 1);
+                        const trend = openPrice + (priceRange * progress);
+                        const noise = (Math.random() - 0.5) * (currentPrice * 0.005);
+                        const price = trend + noise;
+                        
+                        // For commodities, use constant 0 volume; otherwise use pattern
+                        let volumeValue = 0;
+                        if (!isCommodity && volume > 0) {
+                            const volumePattern = Math.sin(progress * Math.PI) * 0.5 + 0.5;
+                            volumeValue = (volume / points) * (0.5 + volumePattern);
+                        }
+                        
+                        historicalPrices.push({
+                            time: i,
+                            price: Math.max(0, price),
+                            volume: volumeValue,
+                            timestamp: new Date(Date.now() - (points - i) * 3.9 * 60000)
+                        });
+                    }
+                    
+                    historicalPrices[points - 1].price = currentPrice;
+                }
+                
+                console.log(`Chart data ready: ${historicalPrices.length} points`);
+                
+                // Update period info in UI
+                updatePeriodInfo();
+                
+                // Start animated chart drawing
+                startChartAnimation();
+
+                if (pendingPredictionValue !== null) {
+                    predictionValues = pendingPredictionValue;
+                    pendingPredictionValue = null;
+                    drawPriceChart(1);
+                }
+                
+            } catch (error) {
+                console.error('Error generating historical data:', error);
+            }
+        }
+        
+        // Update period information display
+        function updatePeriodInfo() {
+            const periodInfo = document.getElementById('periodInfo');
+            const periodChange = document.getElementById('periodChange');
+            const periodHigh = document.getElementById('periodHigh');
+            const periodLow = document.getElementById('periodLow');
+            const periodVolume = document.getElementById('periodVolume');
+            
+            if (!historicalPrices.length) return;
+            
+            const prices = historicalPrices.map(p => p.price);
+            const high = Math.max(...prices);
+            const low = Math.min(...prices);
+            const openPrice = historicalPrices[0].price;
+            const currentPrice = prices[prices.length - 1];
+            const changePercent = ((currentPrice - openPrice) / openPrice) * 100;
+            
+            const formatPrice = (price) => {
+                if (price >= 1000) return `$${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                return `$${price.toFixed(2)}`;
+            };
+            
+            const formatVolume = (vol) => {
+                if (vol >= 1e9) return `${(vol / 1e9).toFixed(1)}B`;
+                if (vol >= 1e6) return `${(vol / 1e6).toFixed(1)}M`;
+                if (vol >= 1e3) return `${(vol / 1e3).toFixed(1)}K`;
+                return vol.toString();
+            };
+            
+            periodInfo.textContent = 'Intraday';
+            
+            const isPositive = changePercent >= 0;
+            periodChange.textContent = `${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`;
+            periodChange.className = `change-info ${isPositive ? 'positive' : 'negative'}`;
+            
+            periodHigh.textContent = formatPrice(high);
+            periodLow.textContent = formatPrice(low);
+            // For gold (futures), always show N/A since volume isn't meaningful
+            if (assetType === 'gold') {
+                periodVolume.textContent = 'N/A';
+            } else {
+                const periodVol = realStockData.volume ?? realStockData.Volume ?? realStockData.vol ?? realStockData.v ?? 0;
+                periodVolume.textContent = formatVolume(periodVol);
+            }
+        }
+
+        function setPredictButtonsDisabled(isDisabled) {
+            const fab = document.getElementById('predictFab');
+            if (fab) {
+                if (isDisabled) { fab.classList.add('loading'); }
+                else { fab.classList.remove('loading'); }
+            }
+        }
+
+        function updatePredictionUI(result) {
+            const placeholder = document.getElementById('predictionPlaceholder');
+            const resultEl    = document.getElementById('predictionResult');
+
+            const formatPrice = (price) => {
+                if (price >= 1000) return `$${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                return `$${price.toFixed(2)}`;
+            };
+
+            // Summary cards
+            document.getElementById('predPriceVal').textContent   = formatPrice(result.predicted_price);
+            document.getElementById('predCurrentVal').textContent  = formatPrice(result.current_price);
+            document.getElementById('predConfVal').textContent     = `${result.confidence_score.toFixed(0)}%`;
+
+            const isUp = result.prediction_change_percent >= 0;
+            const changeEl = document.getElementById('predChangeVal');
+            changeEl.textContent = `${isUp ? '+' : ''}${result.prediction_change_percent.toFixed(2)}%`;
+            changeEl.className   = `sub ${isUp ? 'up' : 'down'}`;
+
+            const trendEl = document.getElementById('predTrendVal');
+            trendEl.textContent = result.trend_direction === 'UP' ? '▲ Bullish' : '▼ Bearish';
+            trendEl.style.color = isUp ? '#17bf63' : '#e0245e';
+
+            // Update period display
+            const periodEl = document.getElementById('predPeriodVal');
+            if (periodEl) periodEl.textContent = result.prediction_period || '7 Days';
+
+            document.getElementById('confidenceLevel').textContent = `${result.confidence_score.toFixed(0)}% Confidence`;
+
+            // 7-day forecast table
+            const tbody = document.getElementById('forecastBody');
+            tbody.innerHTML = '';
+            if (result.forecast_chart) {
+                const curPrice = result.current_price;
+                result.forecast_chart.forEach((item, i) => {
+                    const dayPct = ((item.price - curPrice) / curPrice * 100);
+                    const cls = dayPct >= 0 ? 'up' : 'down';
+                    const arrow = dayPct >= 0 ? '▲' : '▼';
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>Day ${i+1}</td><td>${item.date}</td><td>${formatPrice(item.price)}</td><td class="${cls}">${arrow} ${dayPct >= 0 ? '+' : ''}${dayPct.toFixed(2)}%</td>`;
+                    tbody.appendChild(row);
+                });
+            }
+
+            placeholder.style.display = 'none';
+            resultEl.style.display    = 'block';
+
+            // Scroll the prediction section into view on mobile
+            document.getElementById('predictionSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function updateInsightsUI(insights) {
+            const container = document.getElementById('insightsContent');
+            if (!insights || insights.length === 0) return;
+            container.innerHTML = '';
+            const icons = ['fa-chart-line', 'fa-chart-bar', 'fa-magic', 'fa-bolt'];
+            insights.forEach((text, i) => {
+                const div = document.createElement('div');
+                div.className = 'insight-item';
+                div.innerHTML = `<i class="fas ${icons[i % icons.length]}"></i><p>${text}</p>`;
+                container.appendChild(div);
+            });
+        }
+
+        // ── Trade Recommendation logic ──
+        let lastPredictionData = null;   // Stored after each runPrediction()
+
+        function showTradeRecommendation() {
+            const overlay = document.getElementById('tradeModalOverlay');
+            overlay.classList.add('show');
+
+            if (!lastPredictionData) {
+                // No prediction yet — show placeholder
+                return;
+            }
+
+            const d = lastPredictionData;
+            const cur = d.current_price;
+            const pred = d.predicted_price;
+            const pct = d.prediction_change_percent;
+            const conf = d.confidence_score;
+            const dir = d.trend_direction;
+
+            // Signal
+            const isBuy = dir === 'UP';
+            const signalIcon = isBuy ? '🟢' : '🔴';
+            const signalLabel = isBuy ? 'BUY Signal' : 'SELL / HOLD Signal';
+            const signalSub = isBuy
+                ? `Model forecasts +${pct.toFixed(2)}% upside over 7 days`
+                : `Model forecasts ${pct.toFixed(2)}% move over 7 days — consider holding or reducing`;
+
+            document.getElementById('tradeSignalIcon').textContent = signalIcon;
+            document.getElementById('tradeSignalLabel').textContent = signalLabel;
+            document.getElementById('tradeSignalLabel').style.color = isBuy ? '#17bf63' : '#e0245e';
+            document.getElementById('tradeSignalSub').textContent = signalSub;
+
+            // Entry / target / stop
+            const fmt = (v) => v >= 1000 ? `$${v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}` : `$${v.toFixed(2)}`;
+            document.getElementById('tradeEntry').textContent = fmt(cur);
+            document.getElementById('tradeTarget').textContent = fmt(pred);
+            document.getElementById('tradeTarget').style.color = isBuy ? '#17bf63' : '#e0245e';
+
+            // Stop loss: 2% below current for buy, 2% above for sell
+            const stopPct = isBuy ? 0.98 : 1.02;
+            document.getElementById('tradeStop').textContent = fmt(cur * stopPct);
+            document.getElementById('tradeStop').style.color = '#e0245e';
+
+            // Confidence
+            document.getElementById('tradeConf').textContent = conf.toFixed(0) + '%';
+
+            // Risk bar: risk is inverse of confidence, and higher for larger moves
+            const risk = Math.min(100, Math.max(10, (100 - conf) + Math.abs(pct) * 3));
+            const riskFill = document.getElementById('tradeRiskFill');
+            riskFill.style.width = risk + '%';
+            riskFill.style.background = risk > 66 ? '#e0245e' : (risk > 33 ? '#ffad1f' : '#17bf63');
+        }
+
+        function closeTradeModal() {
+            document.getElementById('tradeModalOverlay').classList.remove('show');
+        }
+
+        let activeForecastPeriod = '7d'; // Track selected period globally
+
+        /**
+         * Switch forecast horizon and re-run prediction.
+         * Called from period selector buttons.
+         */
+        function changeForecastPeriod(period) {
+            activeForecastPeriod = period;
+            // Highlight the active button
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
+            const map = {'1d':'1d','3d':'3d','7d':'7d','30d':'30d'};
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                const t = btn.textContent.toLowerCase().replace(' ','');
+                if (t === period) btn.classList.add('active');
+            });
+            // Re-run prediction with new period
+            runPrediction(period);
+        }
+
+        async function runPrediction(period) {
+            period = period || activeForecastPeriod || '7d';
+            activeForecastPeriod = period;
+            const metadata = assetMetadata[assetType];
+            if (!metadata || !metadata.predictTicker) {
+                showNotification('No model available for this asset', 'info');
+                return;
+            }
+
+            try {
+                setPredictButtonsDisabled(true);
+
+                const response = await fetch(`/api/predict/${metadata.predictTicker}?period=${period}`, {
+                    method: 'GET'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Prediction failed: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                // Store for trade recommendation
+                lastPredictionData = result;
+
+                // Fire toast notification
+                if (typeof nsToast === 'function') {
+                    const dir = result.trend_direction === 'UP' ? 'price-up' : 'price-down';
+                    const arrow = result.trend_direction === 'UP' ? '📈' : '📉';
+                    const pct = result.prediction_change_percent != null ? (result.prediction_change_percent >= 0 ? '+' : '') + result.prediction_change_percent.toFixed(2) + '%' : '';
+                    nsToast(arrow + ' Prediction Complete',
+                        metadata.displayName + ': $' + (result.predicted_price || 0).toFixed(2) + ' ' + pct,
+                        dir, 5000);
+                }
+
+                // Also store prediction in localStorage for chatbot cross-reference
+                try {
+                    const stored = JSON.parse(localStorage.getItem('ns_predictions') || '{}');
+                    stored[metadata.symbol] = {
+                        predicted_price: result.predicted_price,
+                        current_price: result.current_price,
+                        direction: result.trend_direction,
+                        change_pct: result.prediction_change_percent,
+                        ts: Date.now()
+                    };
+                    localStorage.setItem('ns_predictions', JSON.stringify(stored));
+                } catch(e) {}
+
+                // Save prediction to Firebase (fire-and-forget, never blocks the UI)
+                const _userId = localStorage.getItem('user_id');
+                if (_userId) {
+                    fetch('/api/predictions/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: _userId,
+                            symbol: metadata.symbol || metadata.predictTicker,
+                            predicted_price: result.predicted_price || 0,
+                            current_price: result.current_price || 0,
+                            prediction_change_percent: result.prediction_change_percent || 0,
+                            confidence_score: result.confidence_score || 0,
+                            trend_direction: result.trend_direction || 'NEUTRAL',
+                            period: period,
+                            rsi: result.rsi || null,
+                            news_sentiment: result.news_sentiment || null
+                        })
+                    }).catch(() => {}); // silent fail — core prediction is unaffected
+                }
+
+                // Update prediction cards & table
+                updatePredictionUI(result);
+
+                // Update AI insights
+                if (result.insights) {
+                    updateInsightsUI(result.insights);
+                }
+
+                // Draw forecast on chart
+                if (result.forecast_prices && result.forecast_prices.length > 0) {
+                    if (historicalPrices && historicalPrices.length > 0) {
+                        predictionValues = result.forecast_prices;
+                        drawPriceChart(1);
+                    } else {
+                        pendingPredictionValue = result.forecast_prices;
+                    }
+                }
+
+                showNotification('Prediction complete!', 'success');
+
+                // Update Trade button style to show it's actionable
+                const tradeBtn = document.getElementById('tradeBtn');
+                if (tradeBtn && result.trend_direction) {
+                    const isBuy = result.trend_direction === 'UP';
+                    tradeBtn.style.background = isBuy ? '#17bf63' : '#e0245e';
+                    tradeBtn.querySelector('span').textContent = isBuy ? 'Buy Signal' : 'Sell Signal';
+                }
+            } catch (error) {
+                console.error('Prediction error:', error);
+                showNotification('Prediction failed. Please try again.', 'info');
+            } finally {
+                setPredictButtonsDisabled(false);
+            }
+        }
+        
+        // Update UI with real stock data
+        function updateUIWithRealData(metadata, data) {
+            // Update title and icon
+            document.getElementById('assetTitle').textContent = metadata.name;
+            document.getElementById('assetIcon').innerHTML = `<i class="${metadata.icon}"></i>`;
+            document.getElementById('assetIcon').className = `asset-icon ${metadata.iconClass}`;
+            
+            // Format numbers
+            const formatPrice = (price) => {
+                if (price >= 1000) return `$${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                return `$${price.toFixed(2)}`;
+            };
+            
+            const formatMarketCap = (cap) => {
+                // Commodities and futures don't have market cap
+                if (cap === 0 || cap === null || cap === undefined) {
+                    // Check if current asset is a commodity
+                    const isCommodity = assetType === 'gold' || assetType === 'bitcoin';
+                    if (isCommodity) return 'N/A';
+                }
+                if (cap >= 1e12) return `$${(cap / 1e12).toFixed(2)}T`;
+                if (cap >= 1e9) return `$${(cap / 1e9).toFixed(2)}B`;
+                if (cap >= 1e6) return `$${(cap / 1e6).toFixed(2)}M`;
+                if (cap === 0) return 'N/A';  // For stocks with no market cap data
+                return `$${cap.toLocaleString()}`;
+            };
+            
+            const formatVolume = (vol) => {
+                if (vol >= 1e9) return `${(vol / 1e9).toFixed(1)}B`;
+                if (vol >= 1e6) return `${(vol / 1e6).toFixed(1)}M`;
+                if (vol >= 1e3) return `${(vol / 1e3).toFixed(1)}K`;
+                return vol.toString();
+            };
+            
+            // Update price stats
+            document.getElementById('currentPrice').textContent = formatPrice(data.current_price);
+            
+            const changePercent = data.day_change_percent || 0;
+            const changeAmount = data.current_price * (changePercent / 100);
+            const isPositive = changePercent >= 0;
+            
+            const priceChangeElement = document.getElementById('priceChange');
+            priceChangeElement.textContent = `${isPositive ? '+' : ''}${formatPrice(Math.abs(changeAmount))} (${changePercent.toFixed(2)}%) today`;
+            priceChangeElement.parentElement.className = `stat-change ${isPositive ? 'positive' : 'negative'}`;
+            priceChangeElement.parentElement.querySelector('i').className = `fas fa-arrow-${isPositive ? 'up' : 'down'}`;
+            
+            // Update market cap
+            document.getElementById('marketCap').textContent = formatMarketCap(data.market_cap || 0);
+            
+            // Update volume with robust key checking
+            const vol = data.volume ?? data.Volume ?? data.vol ?? data.v ?? 0;
+            // For gold (futures), always show N/A since volume isn't meaningful for commodities
+            if (assetType === 'gold') {
+                document.getElementById('volume').textContent = 'N/A';
+            } else {
+                document.getElementById('volume').textContent = formatVolume(vol);
+            }
+            
+            // Update 52 week range
+            const weekLow = data.fifty_two_week_low || data.current_price * 0.7;
+            const weekHigh = data.fifty_two_week_high || data.current_price * 1.3;
+            document.getElementById('weekRange').textContent = `${formatPrice(weekLow)} - ${formatPrice(weekHigh)}`;
+        }
+        
+        // Show error state
+        function showErrorState() {
+            document.getElementById('assetTitle').textContent = 'Error Loading Data';
+            document.getElementById('currentPrice').textContent = '--';
+            document.getElementById('priceChange').textContent = 'Unable to fetch data';
+            document.getElementById('marketCap').textContent = '--';
+            document.getElementById('volume').textContent = '--';
+            document.getElementById('weekRange').textContent = '--';
+        }
+        
+        // Initialize - fetch real data
+        const metadata = assetMetadata[assetType];
+        if (metadata) {
+            // Set initial metadata
+            document.getElementById('assetTitle').textContent = metadata.name;
+            document.getElementById('assetIcon').innerHTML = `<i class="${metadata.icon}"></i>`;
+            document.getElementById('assetIcon').className = `asset-icon ${metadata.iconClass}`;
+            
+            // Fetch real data
+            fetchRealStockData();
+        } else {
+            console.error(`Asset metadata not found for type: ${assetType}`);
+            showErrorState();
+        }
+
+        // Auto-predict if URL has ?predict=1
+        if (urlParams.get('predict') === '1') {
+            runPrediction();
+        }
+        
+        // Update confidence level text to reflect status
+        document.getElementById('confidenceLevel').textContent = 'Tap Predict to start';
+        
+        // Price chart
+        const priceChart = document.getElementById('priceChart');
+        const priceCtx = priceChart.getContext('2d');
+        const chartContainer = document.getElementById('chartContainer');
+        const priceTooltip = document.getElementById('priceTooltip');
+        
+        // Global variables for chart interaction
+        let chartPoints = [];
+        let predictionPoints = []; // For future predictions (yellow spikes)
+        let predictionValues = []; // Raw predicted values for scaling
+        let pendingPredictionValue = null;
+        let chartPadding = 40;
+        let chartWidth = 0;
+        let chartHeight = 0;
+        let historicalWidth = 0; // Tracks the pixel boundary between history & forecast zones
+        let animationProgress = 0;
+        let isAnimating = false;
+        let animationStartTime = 0;
+        const animationDuration = 2500; // 2.5 seconds (slower/smoother)
+        
+        function drawPriceChart(progress = 1) {
+            // Ensure canvas size matches its display size
+            const dpr = window.devicePixelRatio || 1;
+            priceChart.width = priceChart.offsetWidth * dpr;
+            priceChart.height = priceChart.offsetHeight * dpr;
+            // Reset transform to prevent scale accumulation, then apply scale
+            priceCtx.setTransform(1, 0, 0, 1, 0, 0);
+            priceCtx.scale(dpr, dpr);
+            priceCtx.clearRect(0, 0, priceChart.offsetWidth, priceChart.offsetHeight);
+
+            chartWidth = priceChart.offsetWidth;
+            chartHeight = priceChart.offsetHeight;
+            
+            // Use real historical data if available, otherwise show loading
+            if (!historicalPrices || historicalPrices.length === 0) {
+                // Show loading state
+                priceCtx.fillStyle = '#8899a6';
+                priceCtx.font = '16px Inter';
+                priceCtx.textAlign = 'center';
+                priceCtx.fillText('Loading price data...', chartWidth / 2, chartHeight / 2);
+                return;
+            }
+            
+            // Reserve 30% of chart width for future predictions (right side)
+            // NOTE: historicalWidth is in outer scope so event handlers can access it
+            historicalWidth = chartWidth * 0.7;
+            const predictionWidth = chartWidth * 0.3;
+            
+            // Find min and max prices for scaling (include predictions if available)
+            const prices = historicalPrices.map(p => p.price);
+            if (predictionValues.length > 0) {
+                prices.push(...predictionValues);
+            }
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            let priceRange = maxPrice - minPrice;
+            
+            // Prevent division by zero - add 1% buffer if all prices are the same
+            if (priceRange === 0) {
+                priceRange = maxPrice * 0.01 || 1; // 1% of price or default to 1
+            }
+            
+            // Convert price data to canvas coordinates (left 70% of chart)
+            chartPoints = historicalPrices.map((data, i) => {
+                const x = (i / (historicalPrices.length - 1)) * (historicalWidth - chartPadding * 2) + chartPadding;
+                const normalizedPrice = (data.price - minPrice) / priceRange;
+                const y = chartHeight - chartPadding - (normalizedPrice * (chartHeight - chartPadding * 2));
+                return { 
+                    x, 
+                    y, 
+                    price: data.price, 
+                    time: data.time,
+                    timestamp: data.timestamp
+                };
+            });
+
+            // Build prediction points inside the prediction zone
+            predictionPoints = [];
+            if (predictionValues.length > 0) {
+                const predictionStartX = historicalWidth + 10;
+                const predictionEndX = chartWidth - chartPadding;
+                const step = (predictionEndX - predictionStartX) / predictionValues.length;
+                predictionPoints = predictionValues.map((value, i) => {
+                    const normalizedPrice = (value - minPrice) / priceRange;
+                    const y = chartHeight - chartPadding - (normalizedPrice * (chartHeight - chartPadding * 2));
+                    const x = predictionStartX + step * (i + 1);
+                    return { x, y, price: value };
+                });
+            }
+            
+            // Draw grid lines
+            priceCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            priceCtx.lineWidth = 1;
+            
+            // Horizontal lines with smart price labels
+            for (let i = 0; i <= 5; i++) {
+                const y = chartPadding + (i / 5) * (chartHeight - chartPadding * 2);
+                priceCtx.beginPath();
+                priceCtx.moveTo(chartPadding, y);
+                priceCtx.lineTo(chartWidth - chartPadding, y);
+                priceCtx.stroke();
+                
+                // Draw price labels with smart formatting
+                const labelPrice = maxPrice - (i / 5) * priceRange;
+                priceCtx.fillStyle = '#8899a6';
+                priceCtx.font = '11px Inter, sans-serif';
+                priceCtx.textAlign = 'right';
+                
+                // Smart price formatting based on value
+                let priceLabel;
+                if (labelPrice >= 10000) {
+                    // Large prices: show with commas, 0 decimals
+                    priceLabel = `$${labelPrice.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+                } else if (labelPrice >= 1000) {
+                    // Medium prices: show with commas, 2 decimals
+                    priceLabel = `$${labelPrice.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+                } else if (labelPrice >= 1) {
+                    // Normal stock prices: 2 decimals
+                    priceLabel = `$${labelPrice.toFixed(2)}`;
+                } else {
+                    // Penny stocks or crypto: 4 decimals
+                    priceLabel = `$${labelPrice.toFixed(4)}`;
+                }
+                
+                priceCtx.fillText(priceLabel, chartPadding - 8, y + 4);
+            }
+            
+            // Vertical lines
+            for (let i = 0; i <= 10; i++) {
+                const x = chartPadding + (i / 10) * (chartWidth - chartPadding * 2);
+                priceCtx.beginPath();
+                priceCtx.moveTo(x, chartPadding);
+                priceCtx.lineTo(x, chartHeight - chartPadding);
+                priceCtx.stroke();
+            }
+            
+            // Draw volume bars at the bottom (20% of chart height)
+            const volumeHeight = (chartHeight - chartPadding * 2) * 0.2;
+            const priceAreaHeight = (chartHeight - chartPadding * 2) * 0.8;
+            const volumeBaseY = chartHeight - chartPadding;
+            const openPrice = historicalPrices[0].price;
+            
+            if (historicalPrices[0].volume) {
+                const volumes = historicalPrices.map(p => p.volume);
+                const maxVolume = Math.max(...volumes);
+                
+                historicalPrices.forEach((data, i) => {
+                    const x = (i / (historicalPrices.length - 1)) * (historicalWidth - chartPadding * 2) + chartPadding;
+                    const volHeight = (data.volume / maxVolume) * volumeHeight;
+                    
+                    priceCtx.fillStyle = data.price >= openPrice ? 'rgba(23, 191, 99, 0.3)' : 'rgba(224, 36, 94, 0.3)';
+                    priceCtx.fillRect(x - 2, volumeBaseY - volHeight, 4, volHeight);
+                });
+            }
+            
+            // Draw subtle vertical divider for prediction area
+            priceCtx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            priceCtx.lineWidth = 1;
+            priceCtx.setLineDash([4, 6]);
+            priceCtx.beginPath();
+            priceCtx.moveTo(historicalWidth, chartPadding);
+            priceCtx.lineTo(historicalWidth, chartHeight - chartPadding);
+            priceCtx.stroke();
+            priceCtx.setLineDash([]);
+            
+            // Determine if price is up or down
+            const firstPrice = historicalPrices[0].price;
+            const lastPrice = historicalPrices[historicalPrices.length - 1].price;
+            const isPositive = lastPrice >= firstPrice;
+            const lineColor = isPositive ? '#17bf63' : '#e0245e';
+            const gradientColor1 = isPositive ? 'rgba(23, 191, 99, 0.2)' : 'rgba(224, 36, 94, 0.2)';
+            const gradientColor2 = isPositive ? 'rgba(23, 191, 99, 0)' : 'rgba(224, 36, 94, 0)';
+            
+            // Calculate how many points to draw based on animation progress
+            const pointsToDraw = Math.floor(chartPoints.length * progress);
+            const visiblePoints = chartPoints.slice(0, Math.max(1, pointsToDraw));
+            
+            // Draw the price line (animated)
+            priceCtx.strokeStyle = lineColor;
+            priceCtx.lineWidth = 1.5;
+            priceCtx.lineJoin = 'round';
+            priceCtx.lineCap = 'round';
+            priceCtx.beginPath();
+            
+            visiblePoints.forEach((point, i) => {
+                if (i === 0) {
+                    priceCtx.moveTo(point.x, point.y);
+                } else {
+                    priceCtx.lineTo(point.x, point.y);
+                }
+            });
+            
+            priceCtx.stroke();
+            
+            // Add gradient fill under the line (animated)
+            const gradient = priceCtx.createLinearGradient(0, chartPadding, 0, chartHeight - chartPadding);
+            gradient.addColorStop(0, gradientColor1);
+            gradient.addColorStop(1, gradientColor2);
+            
+            priceCtx.fillStyle = gradient;
+            priceCtx.beginPath();
+            
+            visiblePoints.forEach((point, i) => {
+                if (i === 0) {
+                    priceCtx.moveTo(point.x, point.y);
+                } else {
+                    priceCtx.lineTo(point.x, point.y);
+                }
+            });
+            
+            priceCtx.lineTo(visiblePoints[visiblePoints.length - 1].x, chartHeight - chartPadding);
+            priceCtx.lineTo(chartPadding, chartHeight - chartPadding);
+            priceCtx.closePath();
+            priceCtx.fill();
+            
+            // Draw current price indicator (last visible point)
+            if (visiblePoints.length > 0) {
+                const lastPoint = visiblePoints[visiblePoints.length - 1];
+                priceCtx.beginPath();
+                priceCtx.arc(lastPoint.x, lastPoint.y, 6, 0, Math.PI * 2);
+                priceCtx.fillStyle = lineColor;
+                priceCtx.fill();
+                priceCtx.strokeStyle = '#ffffff';
+                priceCtx.lineWidth = 2;
+                priceCtx.stroke();
+            }
+            
+            // Draw prediction spikes (yellow sharp lines) if predictions exist
+            if (predictionPoints.length > 0 && progress >= 1) {
+                const lastPoint = chartPoints[chartPoints.length - 1];
+
+                // ── Semi-transparent prediction background zone ──
+                const zoneBg = priceCtx.createLinearGradient(historicalWidth, 0, chartWidth, 0);
+                zoneBg.addColorStop(0, 'rgba(29,161,242,0.03)');
+                zoneBg.addColorStop(1, 'rgba(29,161,242,0.08)');
+                priceCtx.fillStyle = zoneBg;
+                priceCtx.fillRect(historicalWidth, chartPadding, predictionWidth, chartHeight - chartPadding * 2);
+
+                // ── Gradient fill under forecast curve ──
+                const fGrad = priceCtx.createLinearGradient(0, chartPadding, 0, chartHeight - chartPadding);
+                const isUpForecast = predictionPoints[predictionPoints.length - 1].price >= lastPoint.price;
+                const fColor = isUpForecast ? '29,161,242' : '224,36,94';
+                fGrad.addColorStop(0, `rgba(${fColor},0.25)`);
+                fGrad.addColorStop(1, `rgba(${fColor},0.0)`);
+
+                priceCtx.beginPath();
+                priceCtx.moveTo(lastPoint.x, lastPoint.y);
+                predictionPoints.forEach(p => priceCtx.lineTo(p.x, p.y));
+                priceCtx.lineTo(predictionPoints[predictionPoints.length - 1].x, chartHeight - chartPadding);
+                priceCtx.lineTo(lastPoint.x, chartHeight - chartPadding);
+                priceCtx.closePath();
+                priceCtx.fillStyle = fGrad;
+                priceCtx.fill();
+
+                // ── Smooth dashed forecast line ──
+                priceCtx.setLineDash([8, 5]);
+                priceCtx.strokeStyle = isUpForecast ? '#1da1f2' : '#e0245e';
+                priceCtx.lineWidth = 2.5;
+                priceCtx.lineJoin = 'round';
+                priceCtx.lineCap = 'round';
+
+                priceCtx.beginPath();
+                priceCtx.moveTo(lastPoint.x, lastPoint.y);
+                predictionPoints.forEach(p => priceCtx.lineTo(p.x, p.y));
+                priceCtx.stroke();
+                priceCtx.setLineDash([]);
+
+                // ── Dot markers: small circles on each forecast point ──
+                predictionPoints.forEach((point, idx) => {
+                    priceCtx.beginPath();
+                    priceCtx.arc(point.x, point.y, idx === predictionPoints.length - 1 ? 6 : 4, 0, Math.PI * 2);
+                    priceCtx.fillStyle = isUpForecast ? '#1da1f2' : '#e0245e';
+                    priceCtx.fill();
+                    priceCtx.strokeStyle = '#15202b';
+                    priceCtx.lineWidth = 2;
+                    priceCtx.stroke();
+                });
+
+                // ── Price label on Day 7 (final forecast point) ──
+                const endPt = predictionPoints[predictionPoints.length - 1];
+                const label = endPt.price >= 1000
+                    ? `$${endPt.price.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+                    : `$${endPt.price.toFixed(2)}`;
+                priceCtx.font = 'bold 12px Inter, sans-serif';
+                priceCtx.textAlign = 'center';
+                priceCtx.fillStyle = '#ffffff';
+                const lblY = endPt.y - 14;
+                // Pill background
+                const tw = priceCtx.measureText(label).width + 14;
+                priceCtx.fillStyle = isUpForecast ? 'rgba(29,161,242,0.85)' : 'rgba(224,36,94,0.85)';
+                priceCtx.beginPath();
+                const rx = endPt.x - tw / 2, ry = lblY - 10, rw = tw, rh = 20, rr = 6;
+                if (priceCtx.roundRect) {
+                    priceCtx.roundRect(rx, ry, rw, rh, rr);
+                } else {
+                    priceCtx.moveTo(rx + rr, ry);
+                    priceCtx.lineTo(rx + rw - rr, ry);
+                    priceCtx.arcTo(rx + rw, ry, rx + rw, ry + rr, rr);
+                    priceCtx.lineTo(rx + rw, ry + rh - rr);
+                    priceCtx.arcTo(rx + rw, ry + rh, rx + rw - rr, ry + rh, rr);
+                    priceCtx.lineTo(rx + rr, ry + rh);
+                    priceCtx.arcTo(rx, ry + rh, rx, ry + rh - rr, rr);
+                    priceCtx.lineTo(rx, ry + rr);
+                    priceCtx.arcTo(rx, ry, rx + rr, ry, rr);
+                    priceCtx.closePath();
+                }
+                priceCtx.fill();
+                priceCtx.fillStyle = '#ffffff';
+                priceCtx.fillText(label, endPt.x, lblY + 4);
+
+                // ── Forecast zone label (dynamic period) ──
+                priceCtx.fillStyle = 'rgba(255,255,255,0.35)';
+                priceCtx.font = '11px Inter, sans-serif';
+                priceCtx.textAlign = 'center';
+                const periodLabelEl = document.getElementById('predPeriodVal');
+                const periodLabelText = (periodLabelEl && periodLabelEl.textContent !== '--') ? periodLabelEl.textContent + ' Forecast' : 'Forecast';
+                priceCtx.fillText(periodLabelText, historicalWidth + predictionWidth / 2, chartHeight - chartPadding + 16);
+            }
+        }
+
+        function setPredictionValues(forecastArray) {
+            if (!historicalPrices || historicalPrices.length === 0) return;
+            // forecastArray is the raw 7-day array from the API
+            predictionValues = forecastArray;
+        }
+        
+        // Animation function using easing
+        function animateChart() {
+            if (!isAnimating) return;
+            
+            const currentTime = Date.now();
+            const elapsed = currentTime - animationStartTime;
+            const rawProgress = Math.min(elapsed / animationDuration, 1);
+            
+            // Smooth easing function (ease-out-cubic)
+            const easedProgress = 1 - Math.pow(1 - rawProgress, 3);
+            
+            drawPriceChart(easedProgress);
+            
+            if (rawProgress < 1) {
+                requestAnimationFrame(animateChart);
+            } else {
+                isAnimating = false;
+                animationProgress = 1;
+            }
+        }
+        
+        // Start chart animation
+        function startChartAnimation() {
+            isAnimating = true;
+            animationProgress = 0;
+            animationStartTime = Date.now();
+            requestAnimationFrame(animateChart);
+        }
+        
+        // Mouse move handler for smooth continuous price display
+        priceChart.addEventListener('mousemove', function(e) {
+            if ((!chartPoints || chartPoints.length === 0) || isAnimating) return;
+            
+            const rect = priceChart.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Determine if mouse is in historical zone or prediction zone
+            const inHistorical = mouseX >= chartPadding && mouseX <= historicalWidth;
+            const inPrediction = predictionPoints.length > 0 && mouseX > historicalWidth && mouseX <= chartWidth - chartPadding;
+            
+            if (!inHistorical && !inPrediction) {
+                priceTooltip.classList.remove('show');
+                return;
+            }
+            
+            let closestPoint = null;
+            let isPredPoint  = false;
+            
+            if (inHistorical) {
+                // Find closest historical point
+                let minDist = Infinity;
+                chartPoints.forEach(pt => {
+                    const d = Math.abs(pt.x - mouseX);
+                    if (d < minDist) { minDist = d; closestPoint = pt; }
+                });
+            } else {
+                // Find closest prediction point
+                let minDist = Infinity;
+                predictionPoints.forEach(pt => {
+                    const d = Math.abs(pt.x - mouseX);
+                    if (d < minDist) { minDist = d; closestPoint = pt; }
+                });
+                isPredPoint = true;
+            }
+            
+            if (!closestPoint) return;
+            
+            // Show tooltip at cursor position
+            const tooltipX = e.clientX - chartContainer.getBoundingClientRect().left;
+            const tooltipY = e.clientY - chartContainer.getBoundingClientRect().top;
+            
+            priceTooltip.style.left = (tooltipX + 15) + 'px';
+            priceTooltip.style.top = (tooltipY - 40) + 'px';
+            
+            // Format content
+            const priceText = `$${closestPoint.price.toFixed(2)}`;
+            let subText = '';
+            if (isPredPoint) {
+                // Prediction: show day number and vs current
+                const dayIdx = predictionPoints.indexOf(closestPoint) + 1;
+                const curP = chartPoints.length > 0 ? chartPoints[chartPoints.length - 1].price : closestPoint.price;
+                const diff = ((closestPoint.price - curP) / curP * 100).toFixed(2);
+                const diffColor = diff >= 0 ? '#17bf63' : '#e0245e';
+                subText = `<div style="font-size: 11px; color: #8899a6; margin-top: 2px;">Day ${dayIdx} Forecast</div>` +
+                          `<div style="font-size: 11px; color: ${diffColor}; margin-top: 1px;">${diff >= 0 ? '+' : ''}${diff}% vs current</div>`;
+            } else {
+                let timeText = '';
+                if (closestPoint.timestamp) {
+                    timeText = closestPoint.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                } else if (closestPoint.time) {
+                    timeText = closestPoint.time;
+                }
+                subText = `<div style="font-size: 11px; color: #8899a6; margin-top: 2px;">${timeText}</div>`;
+            }
+            
+            const borderClr = isPredPoint ? 'rgba(29,161,242,0.6)' : 'rgba(29,161,242,0.6)';
+            priceTooltip.innerHTML = `<div style="font-size: 16px; font-weight: 700;">${priceText}</div>${subText}`;
+            priceTooltip.style.borderColor = borderClr;
+            priceTooltip.classList.add('show');
+            
+            // Redraw chart with highlight
+            drawPriceChart(1); // Full chart when hovering
+            
+            // Accent colour: blue for historical, direction-coloured for prediction
+            const accentClr = isPredPoint
+                ? (predictionPoints[predictionPoints.length-1].price >= chartPoints[chartPoints.length-1].price ? '#1da1f2' : '#e0245e')
+                : '#1da1f2';
+            
+            // Draw vertical crosshair line (full height)
+            priceCtx.setLineDash([3, 3]);
+            priceCtx.strokeStyle = isPredPoint ? 'rgba(29,161,242,0.35)' : 'rgba(29, 161, 242, 0.5)';
+            priceCtx.lineWidth = 1;
+            priceCtx.beginPath();
+            priceCtx.moveTo(closestPoint.x, chartPadding);
+            priceCtx.lineTo(closestPoint.x, chartHeight - chartPadding);
+            priceCtx.stroke();
+            
+            // Draw horizontal price line
+            priceCtx.beginPath();
+            priceCtx.moveTo(chartPadding, closestPoint.y);
+            priceCtx.lineTo(chartWidth - chartPadding, closestPoint.y);
+            priceCtx.stroke();
+            priceCtx.setLineDash([]);
+            
+            // Draw price indicator circle
+            priceCtx.beginPath();
+            priceCtx.arc(closestPoint.x, closestPoint.y, 6, 0, Math.PI * 2);
+            priceCtx.fillStyle = accentClr;
+            priceCtx.fill();
+            priceCtx.strokeStyle = '#ffffff';
+            priceCtx.lineWidth = 2;
+            priceCtx.stroke();
+            
+            // Draw price label on right axis
+            const labelText = `$${closestPoint.price.toFixed(2)}`;
+            priceCtx.font = '12px Inter';
+            const labelWidth = priceCtx.measureText(labelText).width + 16;
+            const labelX = chartWidth - chartPadding + 5;
+            const labelY = closestPoint.y;
+            
+            priceCtx.fillStyle = isPredPoint ? 'rgba(29,161,242,0.9)' : 'rgba(29, 161, 242, 0.9)';
+            priceCtx.fillRect(labelX, labelY - 12, labelWidth, 24);
+            priceCtx.fillStyle = '#ffffff';
+            priceCtx.textAlign = 'left';
+            priceCtx.fillText(labelText, labelX + 8, labelY + 4);
+        });
+        
+        // Hide tooltip when mouse leaves chart
+        priceChart.addEventListener('mouseleave', function() {
+            if (isAnimating) return;
+            priceTooltip.classList.remove('show');
+            drawPriceChart(1); // Full chart
+        });
+
+        // ===== TOUCH INTERACTION (mobile) =====
+        function handleChartTouch(touchClientX, touchClientY) {
+            if ((!chartPoints || chartPoints.length === 0) || isAnimating) return;
+            const rect     = priceChart.getBoundingClientRect();
+            const contRect = chartContainer.getBoundingClientRect();
+            const touchX   = touchClientX - rect.left;
+            const touchY   = touchClientY - rect.top;
+
+            const inHistorical = touchX >= chartPadding && touchX <= historicalWidth;
+            const inPrediction = predictionPoints.length > 0 && touchX > historicalWidth && touchX <= chartWidth - chartPadding;
+
+            if (!inHistorical && !inPrediction) {
+                priceTooltip.classList.remove('show');
+                return;
+            }
+
+            let closestPoint = null;
+            let isPredPoint  = false;
+
+            if (inHistorical) {
+                let minDist = Infinity;
+                chartPoints.forEach(pt => {
+                    const d = Math.abs(pt.x - touchX);
+                    if (d < minDist) { minDist = d; closestPoint = pt; }
+                });
+            } else {
+                let minDist = Infinity;
+                predictionPoints.forEach(pt => {
+                    const d = Math.abs(pt.x - touchX);
+                    if (d < minDist) { minDist = d; closestPoint = pt; }
+                });
+                isPredPoint = true;
+            }
+
+            if (!closestPoint) return;
+
+            // Position tooltip — keep it within the container
+            let tooltipLeft = (touchClientX - contRect.left) + 15;
+            let tooltipTop  = (touchClientY - contRect.top)  - 55;
+            if (tooltipLeft + 160 > contRect.width) tooltipLeft = (touchClientX - contRect.left) - 165;
+            if (tooltipTop < 5) tooltipTop = (touchClientY - contRect.top) + 15;
+
+            priceTooltip.style.left = tooltipLeft + 'px';
+            priceTooltip.style.top  = tooltipTop  + 'px';
+
+            const priceText = `$${closestPoint.price.toFixed(2)}`;
+            let subText = '';
+            if (isPredPoint) {
+                const dayIdx = predictionPoints.indexOf(closestPoint) + 1;
+                const curP   = chartPoints.length > 0 ? chartPoints[chartPoints.length - 1].price : closestPoint.price;
+                const diff   = ((closestPoint.price - curP) / curP * 100).toFixed(2);
+                const diffColor = diff >= 0 ? '#17bf63' : '#e0245e';
+                subText = `<div style="font-size:11px;color:#8899a6;margin-top:2px;">Day ${dayIdx} Forecast</div>` +
+                          `<div style="font-size:11px;color:${diffColor};margin-top:1px;">${diff >= 0 ? '+' : ''}${diff}% vs current</div>`;
+            } else {
+                let timeText = '';
+                if (closestPoint.timestamp) {
+                    timeText = closestPoint.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                } else if (closestPoint.time) {
+                    timeText = closestPoint.time;
+                }
+                subText = `<div style="font-size:11px;color:#8899a6;margin-top:2px;">${timeText}</div>`;
+            }
+
+            priceTooltip.innerHTML = `<div style="font-size:16px;font-weight:700;">${priceText}</div>${subText}`;
+            priceTooltip.classList.add('show');
+
+            drawPriceChart(1);
+
+            const accentClr = isPredPoint
+                ? (predictionPoints[predictionPoints.length-1].price >= chartPoints[chartPoints.length-1].price ? '#1da1f2' : '#e0245e')
+                : '#1da1f2';
+
+            priceCtx.setLineDash([3, 3]);
+            priceCtx.strokeStyle = 'rgba(29, 161, 242, 0.5)';
+            priceCtx.lineWidth = 1;
+            priceCtx.beginPath();
+            priceCtx.moveTo(closestPoint.x, chartPadding);
+            priceCtx.lineTo(closestPoint.x, chartHeight - chartPadding);
+            priceCtx.stroke();
+
+            priceCtx.beginPath();
+            priceCtx.moveTo(chartPadding, closestPoint.y);
+            priceCtx.lineTo(chartWidth - chartPadding, closestPoint.y);
+            priceCtx.stroke();
+            priceCtx.setLineDash([]);
+
+            priceCtx.beginPath();
+            priceCtx.arc(closestPoint.x, closestPoint.y, 7, 0, Math.PI * 2);
+            priceCtx.fillStyle = accentClr;
+            priceCtx.fill();
+            priceCtx.strokeStyle = '#ffffff';
+            priceCtx.lineWidth = 2;
+            priceCtx.stroke();
+
+            const labelText  = `$${closestPoint.price.toFixed(2)}`;
+            priceCtx.font    = '12px Inter';
+            const labelWidth = priceCtx.measureText(labelText).width + 16;
+            const labelX     = chartWidth - chartPadding + 5;
+            const labelY     = closestPoint.y;
+            priceCtx.fillStyle = 'rgba(29, 161, 242, 0.9)';
+            priceCtx.fillRect(labelX, labelY - 12, labelWidth, 24);
+            priceCtx.fillStyle = '#ffffff';
+            priceCtx.textAlign = 'left';
+            priceCtx.fillText(labelText, labelX + 8, labelY + 4);
+        }
+
+        priceChart.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            handleChartTouch(touch.clientX, touch.clientY);
+        }, { passive: false });
+
+        priceChart.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            handleChartTouch(touch.clientX, touch.clientY);
+        }, { passive: false });
+
+        priceChart.addEventListener('touchend', function() {
+            setTimeout(() => {
+                priceTooltip.classList.remove('show');
+                drawPriceChart(1);
+            }, 800); // short delay so user can read the tooltip
+        });
+        
+        // Initial chart draw (will be replaced by animation)
+        drawPriceChart(0);
+        
+        // Redraw chart on window resize
+        window.addEventListener('resize', function() {
+            if (!isAnimating) {
+                drawPriceChart(1);
+            }
+        });
+        
+        // ===== WATCHLIST FUNCTIONALITY =====
+        
+        // Get user ID from localStorage
+        function getUserId() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                console.warn('User not logged in');
+                return null;
+            }
+            return userId;
+        }
+        
+        // Check if asset is in watchlist
+        function isInWatchlist() {
+            const userId = getUserId();
+            if (!userId) return false;
+            
+            const watchlist = JSON.parse(localStorage.getItem(`watchlist_${userId}`) || '[]');
+            return watchlist.includes(assetType);
+        }
+        
+        // Update watchlist button UI
+        function updateWatchlistButton() {
+            const btn = document.getElementById('watchlistBtn');
+            const icon = document.getElementById('watchlistIcon');
+            const text = document.getElementById('watchlistText');
+            
+            if (isInWatchlist()) {
+                btn.classList.add('in-watchlist');
+                icon.className = 'fas fa-star'; // Solid star
+                text.textContent = 'In Watchlist';
+            } else {
+                btn.classList.remove('in-watchlist');
+                icon.className = 'far fa-star'; // Outline star
+                text.textContent = 'Add to Watchlist';
+            }
+        }
+        
+        // Toggle watchlist
+        async function toggleWatchlist() {
+            const userId = getUserId();
+            if (!userId) {
+                alert('Please log in to use the watchlist feature');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Get current watchlist
+            let watchlist = JSON.parse(localStorage.getItem(`watchlist_${userId}`) || '[]');
+            
+            if (isInWatchlist()) {
+                // Remove from watchlist
+                watchlist = watchlist.filter(item => item !== assetType);
+                localStorage.setItem(`watchlist_${userId}`, JSON.stringify(watchlist));
+                
+                // Show feedback
+                showNotification('Removed from watchlist', 'info');
+            } else {
+                // Add to watchlist
+                watchlist.push(assetType);
+                localStorage.setItem(`watchlist_${userId}`, JSON.stringify(watchlist));
+                
+                // Show feedback
+                showNotification('Added to watchlist', 'success');
+            }
+            
+            // Sync to Firebase (optional - for persistence across devices)
+            try {
+                await syncWatchlistToFirebase(userId, watchlist);
+            } catch (error) {
+                console.error('Failed to sync watchlist to Firebase:', error);
+            }
+            
+            // Update button UI
+            updateWatchlistButton();
+        }
+        
+        // Sync watchlist to Firebase
+        async function syncWatchlistToFirebase(userId, watchlist) {
+            try {
+                const response = await fetch('/api/watchlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        watchlist: watchlist
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to sync watchlist');
+                }
+            } catch (error) {
+                console.warn('Watchlist sync failed, using local storage only');
+            }
+        }
+        
+        // Load watchlist from Firebase on page load
+        async function loadWatchlistFromFirebase() {
+            const userId = getUserId();
+            if (!userId) return;
+            
+            try {
+                const response = await fetch(`/api/watchlist?user_id=${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.watchlist) {
+                        localStorage.setItem(`watchlist_${userId}`, JSON.stringify(data.watchlist));
+                        updateWatchlistButton();
+                    }
+                }
+            } catch (error) {
+                console.warn('Failed to load watchlist from Firebase, using local storage');
+                updateWatchlistButton();
+            }
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 24px;
+                background: ${type === 'success' ? 'rgba(23, 191, 99, 0.9)' : 'rgba(29, 161, 242, 0.9)'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 10000;
+                font-weight: 500;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            // Add animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                notification.style.transform = 'translateX(400px)';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Initialize watchlist on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadWatchlistFromFirebase();
+        });
+        
+        // Update button on initial load
+        updateWatchlistButton();
+    </script>
+<script src="/static/js/notifications.js"></script>
+</body>
+</html>

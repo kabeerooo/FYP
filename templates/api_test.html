@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test - NeuroSight</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f1419;
+            color: #e1e8ed;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: #1da1f2; }
+        .test-section {
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: #1da1f2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1a91da; }
+        .result {
+            background: rgba(15, 20, 25, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .success { border-left: 4px solid #17bf63; }
+        .error { border-left: 4px solid #e0245e; }
+        input {
+            background: rgba(15, 20, 25, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            color: #e1e8ed;
+            padding: 8px 12px;
+            margin: 5px;
+            width: 250px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 NeuroSight API Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>1. Server Health Check</h2>
+        <button onclick="testHealth()">Test Server Health</button>
+        <div id="health-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Forgot Password Endpoint</h2>
+        <input type="email" id="forgot-email" placeholder="Enter email" value="test@example.com">
+        <button onclick="testForgotPassword()">Test Forgot Password</button>
+        <div id="forgot-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Stock Data Endpoint</h2>
+        <input type="text" id="stock-symbol" placeholder="Stock symbol" value="AAPL">
+        <button onclick="testStockData()">Test Stock Data</button>
+        <div id="stock-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Cache Stats Endpoint</h2>
+        <button onclick="testCacheStats()">Test Cache Stats</button>
+        <div id="cache-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. User Info Endpoint (requires valid user_id)</h2>
+        <input type="text" id="user-id" placeholder="User ID">
+        <button onclick="testUserInfo()">Test User Info</button>
+        <div id="user-result" class="result"></div>
+    </div>
+
+    <script>
+        function displayResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.className = 'result ' + (isError ? 'error' : 'success');
+            element.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch('/');
+                const data = await response.json();
+                displayResult('health-result', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                });
+            } catch (error) {
+                displayResult('health-result', 'Error: ' + error.message, true);
+            }
+        }
+
+        async function testForgotPassword() {
+            const email = document.getElementById('forgot-email').value;
+            try {
+                displayResult('forgot-result', 'Sending request...');
+                const response = await fetch('/api/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                const data = await response.json();
+                displayResult('forgot-result', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                }, !response.ok);
+            } catch (error) {
+                displayResult('forgot-result', 'Error: ' + error.message, true);
+            }
+        }
+
+        async function testStockData() {
+            const symbol = document.getElementById('stock-symbol').value;
+            try {
+                displayResult('stock-result', 'Fetching stock data...');
+                const response = await fetch(`/api/stock/${symbol}`);
+                const data = await response.json();
+                displayResult('stock-result', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                }, !response.ok);
+            } catch (error) {
+                displayResult('stock-result', 'Error: ' + error.message, true);
+            }
+        }
+
+        async function testCacheStats() {
+            try {
+                displayResult('cache-result', 'Fetching cache stats...');
+                const response = await fetch('/api/cache/stats');
+                const data = await response.json();
+                displayResult('cache-result', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                }, !response.ok);
+            } catch (error) {
+                displayResult('cache-result', 'Error: ' + error.message, true);
+            }
+        }
+
+        async function testUserInfo() {
+            const userId = document.getElementById('user-id').value;
+            if (!userId) {
+                displayResult('user-result', 'Please enter a user ID', true);
+                return;
+            }
+            try {
+                displayResult('user-result', 'Fetching user info...');
+                const response = await fetch(`/api/user/${userId}/info`);
+                const data = await response.json();
+                displayResult('user-result', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                }, !response.ok);
+            } catch (error) {
+                displayResult('user-result', 'Error: ' + error.message, true);
+            }
+        }
+
+        // Auto-run health check on load
+        window.addEventListener('load', () => {
+            testHealth();
+        });
+    </script>
+</body>
+</html>

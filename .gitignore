@@ -1,0 +1,23 @@
+﻿# Virtual environments (NEVER upload these!)
+.venv/
+.venv311/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Large binary files
+*.dll
+*.exe
+*.iso
+*.zip
+*.tar.gz
+
+# IDE folders
+.vscode/
+.idea/
+tf311_fyp/

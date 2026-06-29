@@ -1,0 +1,184 @@
+<!-- This is a reusable sidebar component - copy this into other pages -->
+
+<!-- Menu Toggle Button -->
+<div class="menu-toggle" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Professional Sidebar -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-content">
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <div class="profile-avatar" id="profileAvatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-name" id="profileName">Loading...</div>
+            <div class="profile-email" id="profileEmail">Loading...</div>
+            <button class="edit-profile-btn" onclick="openProfileEditor()">
+                <i class="fas fa-edit"></i>
+                <span>Edit Profile</span>
+            </button>
+        </div>
+        
+        <!-- Watchlist Section -->
+        <div class="menu-section">
+            <div class="menu-section-title">
+                <i class="fas fa-star"></i> Watchlist
+            </div>
+            <div class="watchlist-items" id="watchlistItems">
+                <div class="watchlist-empty">
+                    <i class="fas fa-star" style="font-size: 2rem; color: #8899a6; margin-bottom: 8px;"></i>
+                    <p>No stocks in watchlist</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Market News Section -->
+        <div class="menu-section">
+            <div class="menu-section-title">
+                <i class="fas fa-newspaper"></i> Market News
+            </div>
+            <div class="news-items" id="newsItems">
+                <div class="news-item" onclick="window.open('https://finance.yahoo.com', '_blank')">
+                    <div class="news-title">Loading latest market news...</div>
+                    <div class="news-meta">
+                        <span class="news-source"><i class="fas fa-globe"></i> NeuroSight</span>
+                        <span class="news-time"><i class="fas fa-clock"></i> Just now</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Help Section -->
+        <div class="menu-section">
+            <div class="menu-section-title">
+                <i class="fas fa-question-circle"></i> Help & Support
+            </div>
+            <div class="help-items">
+                <div class="help-category">
+                    <div class="help-category-title" onclick="toggleHelpCategory(this)">
+                        <span class="help-category-name">
+                            <i class="fas fa-book"></i>
+                            Getting Started
+                        </span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="help-category-content">
+                        <div class="help-item">• View real-time stock prices and predictions</div>
+                        <div class="help-item">• Add stocks to your watchlist for quick access</div>
+                        <div class="help-item">• Use the AI chatbot for market insights</div>
+                    </div>
+                </div>
+                
+                <div class="help-category">
+                    <div class="help-category-title" onclick="toggleHelpCategory(this)">
+                        <span class="help-category-name">
+                            <i class="fas fa-chart-line"></i>
+                            Understanding Predictions
+                        </span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="help-category-content">
+                        <div class="help-item">• AI models analyze historical data and trends</div>
+                        <div class="help-item">• Predictions are estimates, not guarantees</div>
+                        <div class="help-item">• Confidence levels indicate prediction reliability</div>
+                    </div>
+                </div>
+                
+                <div class="help-category">
+                    <div class="help-category-title" onclick="toggleHelpCategory(this)">
+                        <span class="help-category-name">
+                            <i class="fas fa-shield-alt"></i>
+                            Account & Security
+                        </span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="help-category-content">
+                        <div class="help-item">• Your data is encrypted and secure</div>
+                        <div class="help-item">• Change password in settings</div>
+                        <div class="help-item">• Enable two-factor authentication</div>
+                    </div>
+                </div>
+                
+                <div class="help-category">
+                    <div class="help-category-title" onclick="toggleHelpCategory(this)">
+                        <span class="help-category-name">
+                            <i class="fas fa-envelope"></i>
+                            Contact Support
+                        </span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="help-category-content">
+                        <div class="help-item">• Email: support@neurosight.com</div>
+                        <div class="help-item">• Live Chat: Available 24/7</div>
+                        <div class="help-item">• Response time: Under 2 hours</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings Section -->
+        <div class="menu-section">
+            <div class="menu-section-title">
+                <i class="fas fa-cog"></i> Settings
+            </div>
+            <div class="settings-items">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-moon setting-icon" id="themeIcon"></i>
+                        <div>
+                            <div class="setting-label">Light Mode</div>
+                            <div class="setting-description">Switch to light theme</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()">
+                        <div class="toggle-switch-slider"></div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-bell setting-icon"></i>
+                        <div>
+                            <div class="setting-label">Price Alerts</div>
+                            <div class="setting-description">Get notified on price changes</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch" id="alertsToggle" onclick="toggleAlerts()">
+                        <div class="toggle-switch-slider"></div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-chart-bar setting-icon"></i>
+                        <div>
+                            <div class="setting-label">Auto-Refresh Data</div>
+                            <div class="setting-description">Update prices every 5 minutes</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch active" id="autoRefreshToggle" onclick="toggleAutoRefresh()">
+                        <div class="toggle-switch-slider"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Logout Button -->
+        <div class="menu-section">
+            <a href="index.html" class="menu-item" style="background: rgba(224, 36, 94, 0.1); border-color: rgba(224, 36, 94, 0.3); color: #e0245e;" onclick="handleLogout(event)">
+                <i class="fas fa-sign-out-alt"></i>
+                <div class="menu-item-content">
+                    <div class="menu-item-title">Logout</div>
+                    <div class="menu-item-subtitle">Sign out of your account</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</aside>

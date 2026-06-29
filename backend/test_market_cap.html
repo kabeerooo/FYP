@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Market Cap Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #0a0e27; color: white; }
+        .stock { padding: 20px; margin: 10px 0; background: #1a1f3a; border-radius: 10px; }
+        .price { font-size: 24px; font-weight: bold; color: #1da1f2; }
+        .market-cap { font-size: 18px; color: #17bf63; margin-top: 10px; }
+        .loading { color: #888; }
+        .error { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Market Cap Test</h1>
+    
+    <div class="stock">
+        <h2>Apple (AAPL)</h2>
+        <div id="aapl-data" class="loading">Loading...</div>
+    </div>
+    
+    <div class="stock">
+        <h2>Tesla (TSLA)</h2>
+        <div id="tsla-data" class="loading">Loading...</div>
+    </div>
+    
+    <div class="stock">
+        <h2>NVIDIA (NVDA)</h2>
+        <div id="nvda-data" class="loading">Loading...</div>
+    </div>
+    
+    <div class="stock">
+        <h2>Microsoft (MSFT)</h2>
+        <div id="msft-data" class="loading">Loading...</div>
+    </div>
+
+    <script>
+        async function fetchStock(symbol, elementId) {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/stock/${symbol}`);
+                const data = await response.json();
+                
+                const formatMarketCap = (cap) => {
+                    if (cap >= 1e12) return `$${(cap / 1e12).toFixed(2)}T`;
+                    if (cap >= 1e9) return `$${(cap / 1e9).toFixed(2)}B`;
+                    if (cap >= 1e6) return `$${(cap / 1e6).toFixed(2)}M`;
+                    return `$${cap.toLocaleString()}`;
+                };
+                
+                const marketCapFormatted = formatMarketCap(data.market_cap);
+                const marketCapClass = data.market_cap > 0 ? 'market-cap' : 'error';
+                
+                document.getElementById(elementId).innerHTML = `
+                    <div class="price">$${data.current_price.toFixed(2)} (${data.day_change_percent.toFixed(2)}%)</div>
+                    <div class="${marketCapClass}">Market Cap: ${marketCapFormatted}</div>
+                    <div style="color: #888; margin-top: 10px;">Volume: ${data.volume.toLocaleString()}</div>
+                    <div style="color: #666; margin-top: 5px; font-size: 12px;">Raw market cap value: ${data.market_cap}</div>
+                `;
+                
+                if (data.market_cap === 0) {
+                    document.getElementById(elementId).innerHTML += '<div class="error">⚠️ Market cap is 0!</div>';
+                }
+                
+            } catch (error) {
+                document.getElementById(elementId).innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        fetchStock('AAPL', 'aapl-data');
+        fetchStock('TSLA', 'tsla-data');
+        fetchStock('NVDA', 'nvda-data');
+        fetchStock('MSFT', 'msft-data');
+    </script>
+</body>
+</html>

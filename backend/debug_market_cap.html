@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Market Cap Debug Test</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            padding: 30px; 
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        h1 { color: #1da1f2; margin-bottom: 30px; }
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .stock-card { 
+            padding: 25px;
+            background: rgba(26, 31, 58, 0.8);
+            border-radius: 15px;
+            border: 1px solid rgba(29, 161, 242, 0.2);
+            transition: transform 0.2s;
+        }
+        .stock-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(29, 161, 242, 0.5);
+        }
+        .stock-name { 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: #1da1f2; 
+            margin-bottom: 15px;
+        }
+        .data-row { 
+            margin: 10px 0; 
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .label { 
+            color: #888; 
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .value { 
+            font-size: 18px; 
+            font-weight: bold; 
+            margin-top: 5px;
+        }
+        .value.good { color: #17bf63; }
+        .value.bad { color: #e74c3c; }
+        .value.neutral { color: #f39c12; }
+        .loading { 
+            color: #888; 
+            font-style: italic;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 11px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .refresh-btn {
+            background: #1da1f2;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+            transition: background 0.2s;
+        }
+        .refresh-btn:hover {
+            background: #1991db;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Market Cap Debug Test - Real-Time API Data</h1>
+    <button class="refresh-btn" onclick="location.reload()">🔄 Refresh (Clear Cache)</button>
+    <div id="timestamp" class="timestamp"></div>
+    <div class="stock-grid" id="stockGrid"></div>
+
+    <script>
+        const symbols = [
+            { symbol: 'AAPL', name: 'Apple Inc.' },
+            { symbol: 'TSLA', name: 'Tesla Inc.' },
+            { symbol: 'NVDA', name: 'NVIDIA Corp.' },
+            { symbol: 'MSFT', name: 'Microsoft Corp.' },
+            { symbol: 'GC=F', name: 'Gold Futures' },
+            { symbol: 'BTC-USD', name: 'Bitcoin' }
+        ];
+
+        document.getElementById('timestamp').textContent = 
+            `Last Updated: ${new Date().toLocaleString()} - Cache Buster: ${Date.now()}`;
+
+        async function fetchAndDisplay(symbolData) {
+            const card = document.createElement('div');
+            card.className = 'stock-card';
+            card.innerHTML = `
+                <div class="stock-name">${symbolData.name} (${symbolData.symbol})</div>
+                <div class="data-row">
+                    <div class="label">Price</div>
+                    <div class="value loading" id="${symbolData.symbol}-price">Loading...</div>
+                </div>
+                <div class="data-row">
+                    <div class="label">Market Cap</div>
+                    <div class="value loading" id="${symbolData.symbol}-mcap">Loading...</div>
+                </div>
+                <div class="data-row">
+                    <div class="label">Volume</div>
+                    <div class="value loading" id="${symbolData.symbol}-volume">Loading...</div>
+                </div>
+                <div class="data-row">
+                    <div class="label">Raw Market Cap Value</div>
+                    <div class="value loading" id="${symbolData.symbol}-raw">Loading...</div>
+                </div>
+            `;
+            document.getElementById('stockGrid').appendChild(card);
+
+            try {
+                // Add cache buster to force fresh data
+                const cacheBuster = Date.now();
+                const response = await fetch(
+                    `http://127.0.0.1:8000/api/stock/${symbolData.symbol}?_cb=${cacheBuster}`,
+                    { cache: 'no-store' }  // Disable browser caching
+                );
+                const data = await response.json();
+                
+                console.log(`${symbolData.symbol} API Response:`, data);
+                
+                // Format functions
+                const formatPrice = (price) => `$${price.toFixed(2)}`;
+                const formatMarketCap = (cap) => {
+                    if (cap >= 1e12) return `$${(cap / 1e12).toFixed(2)}T`;
+                    if (cap >= 1e9) return `$${(cap / 1e9).toFixed(2)}B`;
+                    if (cap >= 1e6) return `$${(cap / 1e6).toFixed(2)}M`;
+                    if (cap === 0) return '$0 ❌';
+                    return `$${cap.toLocaleString()}`;
+                };
+                const formatVolume = (vol) => {
+                    if (vol >= 1e9) return `${(vol / 1e9).toFixed(2)}B`;
+                    if (vol >= 1e6) return `${(vol / 1e6).toFixed(2)}M`;
+                    if (vol >= 1e3) return `${(vol / 1e3).toFixed(2)}K`;
+                    if (vol === 0) return '0 ❌';
+                    return vol.toLocaleString();
+                };
+                
+                // Update UI
+                document.getElementById(`${symbolData.symbol}-price`).textContent = 
+                    formatPrice(data.current_price);
+                document.getElementById(`${symbolData.symbol}-price`).className = 'value neutral';
+                
+                const mcapEl = document.getElementById(`${symbolData.symbol}-mcap`);
+                mcapEl.textContent = formatMarketCap(data.market_cap);
+                mcapEl.className = data.market_cap > 0 ? 'value good' : 'value bad';
+                
+                const volEl = document.getElementById(`${symbolData.symbol}-volume`);
+                volEl.textContent = formatVolume(data.volume);
+                volEl.className = data.volume > 0 ? 'value good' : 'value bad';
+                
+                const rawEl = document.getElementById(`${symbolData.symbol}-raw`);
+                rawEl.textContent = data.market_cap.toLocaleString();
+                rawEl.className = data.market_cap > 0 ? 'value good' : 'value bad';
+                
+            } catch (error) {
+                console.error(`Error fetching ${symbolData.symbol}:`, error);
+                document.getElementById(`${symbolData.symbol}-price`).textContent = 'Error';
+                document.getElementById(`${symbolData.symbol}-mcap`).textContent = 'Error';
+                document.getElementById(`${symbolData.symbol}-volume`).textContent = 'Error';
+                document.getElementById(`${symbolData.symbol}-raw`).textContent = 'Error';
+            }
+        }
+
+        // Fetch all symbols
+        symbols.forEach(symbolData => fetchAndDisplay(symbolData));
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+# ──────────────────────────────────────────────────────────────────────
+#  NeuroSight  –  docker-compose.yml
+#  Starts the FastAPI backend + Redis cache in a single command:
+#
+#      docker-compose up --build
+#
+# ──────────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+services:
+
+  # ════════════════════════════════════════
+  #  FastAPI Application
+  # ════════════════════════════════════════
+  api:
+    build:
+      context: ./backend          # Dockerfile lives in backend/
+      dockerfile: Dockerfile
+    container_name: neurosight_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # ── Firebase ─────────────────────────────────────────────────────
+      GOOGLE_APPLICATION_CREDENTIALS: /app/firebase-service-account.json
+
+      # ── API Keys (inject from host environment or .env file) ──────────
+      FINNHUB_API_KEY:    ${FINNHUB_API_KEY}
+      MARKETAUX_API_KEY:  ${MARKETAUX_API_KEY}
+      GROQ_API_KEY:       ${GROQ_API_KEY}
+      NEWS_API_KEY:       ${NEWS_API_KEY}
+
+      # ── Email service ─────────────────────────────────────────────────
+      BREVO_API_KEY:      ${BREVO_API_KEY}
+
+      # ── Security ──────────────────────────────────────────────────────
+      SECRET_KEY:         ${SECRET_KEY:-change-me-in-production}
+      ALLOWED_ORIGINS:    ${ALLOWED_ORIGINS:-http://localhost:3000}
+
+      # ── Redis (used by optional rate-limiter / cache layer) ───────────
+      REDIS_URL:          redis://redis:6379/0
+
+    volumes:
+      # Mount the service-account JSON (do NOT bake secrets into the image)
+      - ./backend/firebase-service-account.json:/app/firebase-service-account.json:ro
+      # Persist ML model files across restarts
+      - model_data:/app/ml_models
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    networks:
+      - neurosight_net
+
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ════════════════════════════════════════
+  #  Redis  -  In-memory cache / rate limiter
+  # ════════════════════════════════════════
+  redis:
+    image: redis:7-alpine
+    container_name: neurosight_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"           # remove this line in production
+    networks:
+      - neurosight_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# ════════════════════════════════════════
+#  Named volumes
+# ════════════════════════════════════════
+volumes:
+  model_data:
+    driver: local
+
+# ════════════════════════════════════════
+#  Networks
+# ════════════════════════════════════════
+networks:
+  neurosight_net:
+    driver: bridge

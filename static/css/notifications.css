@@ -1,0 +1,393 @@
+/* ============================================================
+   NeuroSight - Shared Notification & Alerts System
+   ============================================================ */
+
+/* ── Toast Notification ── */
+.ns-toast-container {
+    position: fixed;
+    top: 80px;
+    right: 16px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    max-width: 380px;
+    width: calc(100% - 32px);
+}
+
+.ns-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(25, 39, 52, 0.97);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transform: translateX(120%);
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+    cursor: pointer;
+    max-width: 100%;
+}
+
+.ns-toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.ns-toast.exit {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+.ns-toast-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+    width: 24px;
+    text-align: center;
+}
+
+.ns-toast-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.ns-toast-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ns-toast-msg {
+    font-size: 0.8rem;
+    color: #8899a6;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.ns-toast-close {
+    background: none;
+    border: none;
+    color: #657786;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 2px;
+    flex-shrink: 0;
+}
+
+.ns-toast-close:hover { color: #fff; }
+
+/* Toast types */
+.ns-toast.success { border-left: 3px solid #17bf63; }
+.ns-toast.success .ns-toast-icon { color: #17bf63; }
+.ns-toast.error   { border-left: 3px solid #e0245e; }
+.ns-toast.error .ns-toast-icon   { color: #e0245e; }
+.ns-toast.warning { border-left: 3px solid #ffad1f; }
+.ns-toast.warning .ns-toast-icon { color: #ffad1f; }
+.ns-toast.info    { border-left: 3px solid #1da1f2; }
+.ns-toast.info .ns-toast-icon    { color: #1da1f2; }
+.ns-toast.price-up   { border-left: 3px solid #17bf63; }
+.ns-toast.price-up .ns-toast-icon { color: #17bf63; }
+.ns-toast.price-down { border-left: 3px solid #e0245e; }
+.ns-toast.price-down .ns-toast-icon { color: #e0245e; }
+
+/* ── Notification Bell (nav) ── */
+.ns-bell-wrap {
+    position: relative;
+    cursor: pointer;
+}
+
+.ns-bell-btn {
+    background: none;
+    border: none;
+    color: #8899a6;
+    font-size: 1.15rem;
+    cursor: pointer;
+    padding: 6px;
+    transition: color 0.2s;
+    position: relative;
+}
+
+.ns-bell-btn:hover { color: #1da1f2; }
+
+.ns-bell-badge {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e0245e;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #0f1419;
+}
+
+.ns-bell-badge:empty,
+.ns-bell-badge[data-count="0"] { display: none; }
+
+/* ── Notification Dropdown ── */
+.ns-notif-dropdown {
+    display: none;
+    position: absolute;
+    top: 42px;
+    right: -8px;
+    width: 340px;
+    max-height: 420px;
+    background: rgba(25, 39, 52, 0.98);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    z-index: 10001;
+    overflow: hidden;
+}
+
+.ns-notif-dropdown.open { display: block; }
+
+.ns-notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.ns-notif-header h4 {
+    font-size: 0.95rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+.ns-notif-clear {
+    font-size: 0.78rem;
+    color: #1da1f2;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.ns-notif-clear:hover { text-decoration: underline; }
+
+.ns-notif-list {
+    max-height: 340px;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.ns-notif-list::-webkit-scrollbar { width: 4px; }
+.ns-notif-list::-webkit-scrollbar-track { background: transparent; }
+.ns-notif-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+.ns-notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.ns-notif-item:hover { background: rgba(255,255,255,0.04); }
+.ns-notif-item.unread { background: rgba(29,161,242,0.06); }
+
+.ns-notif-item .ni-icon {
+    font-size: 1rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.ns-notif-item .ni-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.ns-notif-item .ni-title {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #e1e8ed;
+    margin-bottom: 2px;
+}
+
+.ns-notif-item .ni-desc {
+    font-size: 0.78rem;
+    color: #8899a6;
+    line-height: 1.35;
+}
+
+.ns-notif-item .ni-time {
+    font-size: 0.7rem;
+    color: #657786;
+    margin-top: 4px;
+}
+
+.ns-notif-empty {
+    text-align: center;
+    padding: 32px 16px;
+    color: #657786;
+    font-size: 0.88rem;
+}
+
+.ns-notif-empty i {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    display: block;
+    color: #38444d;
+}
+
+/* ── Price Alert Setup Modal ── */
+.ns-alert-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100000;
+    justify-content: center;
+    align-items: center;
+}
+.ns-alert-modal-overlay.show { display: flex; }
+
+.ns-alert-modal {
+    background: #192734;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    padding: 24px;
+}
+
+.ns-alert-modal h3 {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.ns-alert-form-group {
+    margin-bottom: 14px;
+}
+
+.ns-alert-form-group label {
+    display: block;
+    font-size: 0.82rem;
+    color: #8899a6;
+    margin-bottom: 6px;
+}
+
+.ns-alert-form-group select,
+.ns-alert-form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(15,20,25,0.8);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.ns-alert-form-group select:focus,
+.ns-alert-form-group input:focus {
+    border-color: #1da1f2;
+}
+
+.ns-alert-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.ns-alert-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.ns-alert-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.ns-alert-btn:hover { opacity: 0.85; }
+
+.ns-alert-btn.primary {
+    background: #1da1f2;
+    color: #fff;
+}
+
+.ns-alert-btn.secondary {
+    background: rgba(255,255,255,0.1);
+    color: #8899a6;
+}
+
+/* ── Active Alerts List ── */
+.ns-active-alerts {
+    margin-top: 12px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.ns-active-alert-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: rgba(15,20,25,0.5);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 0.82rem;
+}
+
+.ns-active-alert-item .aal-info {
+    color: #e1e8ed;
+}
+
+.ns-active-alert-item .aal-del {
+    background: none;
+    border: none;
+    color: #e0245e;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+/* ── Mobile responsive ── */
+@media (max-width: 480px) {
+    .ns-toast-container {
+        top: 70px;
+        right: 8px;
+        left: 8px;
+        max-width: 100%;
+        width: auto;
+    }
+    .ns-notif-dropdown {
+        width: calc(100vw - 32px);
+        right: -60px;
+    }
+    .ns-alert-modal {
+        width: 95%;
+        padding: 18px;
+    }
+}

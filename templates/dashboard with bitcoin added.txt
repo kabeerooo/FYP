@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NeuroSight</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* User-friendly, modern financial app styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0f1419;
+            color: #e1e8ed;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(180deg, #0f1419 0%, #192734 100%);
+            opacity: 0.8;
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1da1f2;
+            text-decoration: none;
+        }
+        
+        .nav-logo i {
+            margin-right: 12px;
+            color: #1da1f2;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 32px;
+        }
+        
+        .nav-link {
+            color: #e1e8ed;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: color 0.2s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: #1da1f2;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #1da1f2;
+            border-radius: 3px;
+        }
+        
+        .dashboard-container {
+            padding: 100px 24px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            margin-bottom: 32px;
+        }
+        
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+        
+        .dashboard-subtitle {
+            color: #8899a6;
+            font-size: 1.125rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #1da1f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .user-details h3 {
+            font-size: 1.25rem;
+            margin-bottom: 4px;
+            color: #ffffff;
+        }
+        
+        .user-details p {
+            color: #8899a6;
+            font-size: 0.875rem;
+        }
+        
+        .portfolio-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .summary-card {
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+        
+        .summary-card:hover {
+            background: rgba(25, 39, 52, 0.8);
+            border-color: rgba(29, 161, 242, 0.3);
+        }
+        
+        .summary-label {
+            color: #8899a6;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+        }
+        
+        .summary-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .summary-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .positive {
+            color: #17bf63;
+        }
+        
+        .negative {
+            color: #e0245e;
+        }
+        
+        .assets-section {
+            margin-bottom: 32px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .view-all-btn {
+            color: #1da1f2;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: color 0.2s ease;
+        }
+        
+        .view-all-btn:hover {
+            color: #1a91da;
+            text-decoration: underline;
+        }
+        
+        .assets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 24px;
+        }
+        
+        .asset-card {
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .asset-card:hover {
+            background: rgba(25, 39, 52, 0.8);
+            border-color: rgba(29, 161, 242, 0.3);
+            transform: translateY(-4px);
+        }
+        
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .asset-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .apple-icon {
+            background: rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+        }
+        
+        .tesla-icon {
+            background: rgba(238, 54, 40, 0.2);
+            color: #ee3628;
+        }
+        
+        .bitcoin-icon {
+            background: rgba(247, 147, 26, 0.2);
+            color: #f7931a;
+        }
+        
+        .nvidia-icon {
+            background: rgba(118, 185, 0, 0.2);
+            color: #76b900;
+        }
+        
+        .gold-icon {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+        
+        .asset-name {
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .asset-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .asset-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .asset-chart {
+            height: 60px;
+            margin-top: 16px;
+        }
+        
+        .chatbot-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #1da1f2;
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+        
+        .chatbot-btn:hover {
+            background: #1a91da;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(29, 161, 242, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 2rem;
+            }
+            
+            .portfolio-summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .assets-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Animation Canvas -->
+    <canvas id="stockAnimation" class="bg-animation"></canvas>
+    
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>NeuroSight</span>
+            </a>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="chatbot.html" class="nav-link">Chatbot</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Financial Dashboard</h1>
+            <p class="dashboard-subtitle">Track your investments and get AI-powered predictions</p>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar">JD</div>
+            <div class="user-details">
+                <h3>John Doe</h3>
+                <p>Premium Member • Joined January 2023</p>
+            </div>
+        </div>
+        
+        <div class="portfolio-summary">
+            <div class="summary-card">
+                <div class="summary-label">Portfolio Value</div>
+                <div class="summary-value">$125,430</div>
+                <div class="summary-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+$2,845 (2.3%) today</span>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-label">Total Profit</div>
+                <div class="summary-value">$18,720</div>
+                <div class="summary-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+$1,320 (7.6%) this month</span>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-label">Best Performer</div>
+                <div class="summary-value">NVDA</div>
+                <div class="summary-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+12.4% this week</span>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-label">AI Confidence</div>
+                <div class="summary-value">87%</div>
+                <div class="summary-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+3% from last week</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="assets-section">
+            <div class="section-header">
+                <h2 class="section-title">Your Assets</h2>
+                <a href="#" class="view-all-btn">View All</a>
+            </div>
+            
+            <div class="assets-grid">
+                <a href="asset_prediction.html?asset=apple" class="asset-card">
+                    <div class="asset-header">
+                        <div class="asset-icon apple-icon">
+                            <i class="fab fa-apple"></i>
+                        </div>
+                        <div class="asset-name">AAPL</div>
+                    </div>
+                    <div class="asset-price">$178.32</div>
+                    <div class="asset-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+2.4% today</span>
+                    </div>
+                    <canvas class="asset-chart" id="appleChart"></canvas>
+                </a>
+                
+                <a href="asset_prediction.html?asset=tesla" class="asset-card">
+                    <div class="asset-header">
+                        <div class="asset-icon tesla-icon">
+                            <i class="fab fa-tesla"></i>
+                        </div>
+                        <div class="asset-name">TSLA</div>
+                    </div>
+                    <div class="asset-price">$245.67</div>
+                    <div class="asset-change negative">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>-1.2% today</span>
+                    </div>
+                    <canvas class="asset-chart" id="teslaChart"></canvas>
+                </a>
+                
+                <a href="asset_prediction.html?asset=bitcoin" class="asset-card">
+                    <div class="asset-header">
+                        <div class="asset-icon bitcoin-icon">
+                            <i class="fab fa-bitcoin"></i>
+                        </div>
+                        <div class="asset-name">BTC</div>
+                    </div>
+                    <div class="asset-price">$42,185</div>
+                    <div class="asset-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+3.7% today</span>
+                    </div>
+                    <canvas class="asset-chart" id="bitcoinChart"></canvas>
+                </a>
+                
+                <a href="asset_prediction.html?asset=nvidia" class="asset-card">
+                    <div class="asset-header">
+                        <div class="asset-icon nvidia-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <div class="asset-name">NVDA</div>
+                    </div>
+                    <div class="asset-price">$485.09</div>
+                    <div class="asset-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+5.2% today</span>
+                    </div>
+                    <canvas class="asset-chart" id="nvidiaChart"></canvas>
+                </a>
+                
+                <a href="asset_prediction.html?asset=gold" class="asset-card">
+                    <div class="asset-header">
+                        <div class="asset-icon gold-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="asset-name">GOLD</div>
+                    </div>
+                    <div class="asset-price">$2,045.30</div>
+                    <div class="asset-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+0.8% today</span>
+                    </div>
+                    <canvas class="asset-chart" id="goldChart"></canvas>
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <button class="chatbot-btn" onclick="window.location.href='chatbot.html'">
+        <i class="fas fa-comments"></i>
+    </button>
+    
+    <script>
+        // Simple, clean stock chart animation
+        const canvas = document.getElementById('stockAnimation');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Stock lines data
+        const stockLines = [];
+        const numLines = 2;
+        
+        // Initialize stock lines
+        for (let i = 0; i < numLines; i++) {
+            const line = {
+                points: [],
+                color: i === 0 ? 'rgba(29, 161, 242, 0.15)' : 'rgba(29, 161, 242, 0.08)',
+                speed: 0.3 + Math.random() * 0.5,
+                amplitude: 40 + Math.random() * 30,
+                frequency: 0.005 + Math.random() * 0.01,
+                offset: Math.random() * 1000
+            };
+            
+            // Generate initial points
+            for (let x = 0; x < canvas.width + 200; x += 10) {
+                const y = canvas.height / 2 + 
+                         Math.sin(x * line.frequency + line.offset) * line.amplitude +
+                         Math.sin(x * line.frequency * 0.5 + line.offset) * line.amplitude * 0.3;
+                line.points.push({ x, y });
+            }
+            
+            stockLines.push(line);
+        }
+        
+        // Animation function
+        function animate() {
+            // Clear canvas with slight transparency for trail effect
+            ctx.fillStyle = 'rgba(15, 20, 25, 0.02)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw stock lines
+            stockLines.forEach(line => {
+                // Update points
+                line.points.forEach((point, index) => {
+                    point.x -= line.speed;
+                    
+                    // Regenerate points that have moved off screen
+                    if (point.x < -50) {
+                        point.x = canvas.width + 50;
+                        const y = canvas.height / 2 + 
+                                 Math.sin(point.x * line.frequency + line.offset) * line.amplitude +
+                                 Math.sin(point.x * line.frequency * 0.5 + line.offset) * line.amplitude * 0.3;
+                        point.y = y;
+                    }
+                });
+                
+                // Draw line
+                ctx.strokeStyle = line.color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                line.points.forEach((point, i) => {
+                    if (i === 0) {
+                        ctx.moveTo(point.x, point.y);
+                    } else {
+                        ctx.lineTo(point.x, point.y);
+                    }
+                });
+                
+                ctx.stroke();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Start animation
+        animate();
+        
+        // Mini charts for assets
+        function createMiniChart(canvasId, isPositive) {
+            const chartCanvas = document.getElementById(canvasId);
+            if (!chartCanvas) return;
+            
+            const chartCtx = chartCanvas.getContext('2d');
+            const width = chartCanvas.width = chartCanvas.offsetWidth * 2;
+            const height = chartCanvas.height = chartCanvas.offsetHeight * 2;
+            chartCtx.scale(2, 2);
+            
+            // Generate random data points
+            const points = [];
+            const numPoints = 20;
+            let lastY = height / 4;
+            
+            for (let i = 0; i < numPoints; i++) {
+                const x = (i / (numPoints - 1)) * (width / 2);
+                const change = (Math.random() - 0.5) * 10;
+                lastY += change;
+                
+                // Ensure the chart stays within bounds
+                lastY = Math.max(5, Math.min(height / 2 - 5, lastY));
+                
+                points.push({ x, y: lastY });
+            }
+            
+            // Draw the chart
+            chartCtx.strokeStyle = isPositive ? 'rgba(23, 191, 99, 0.8)' : 'rgba(224, 36, 94, 0.8)';
+            chartCtx.lineWidth = 2;
+            chartCtx.beginPath();
+            
+            points.forEach((point, i) => {
+                if (i === 0) {
+                    chartCtx.moveTo(point.x, point.y);
+                } else {
+                    chartCtx.lineTo(point.x, point.y);
+                }
+            });
+            
+            chartCtx.stroke();
+        }
+        
+        // Initialize mini charts
+        createMiniChart('appleChart', true);
+        createMiniChart('teslaChart', false);
+        createMiniChart('bitcoinChart', true);
+        createMiniChart('nvidiaChart', true);
+        createMiniChart('goldChart', true);
+    </script>
+</body>
+</html>

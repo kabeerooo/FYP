@@ -1,0 +1,2419 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - NeuroSight</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* User-friendly, modern financial app styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0f1419;
+            color: #e1e8ed;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(180deg, #0f1419 0%, #0d1b2a 40%, #192734 100%);
+        }
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -20%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(ellipse, rgba(29,161,242,0.06) 0%, transparent 70%);
+            animation: bgPulse 8s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+        .bg-animation::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            right: -15%;
+            width: 50%;
+            height: 50%;
+            background: radial-gradient(ellipse, rgba(29,161,242,0.04) 0%, transparent 70%);
+            animation: bgPulse 11s ease-in-out infinite alternate-reverse;
+            pointer-events: none;
+        }
+        @keyframes bgPulse {
+            from { opacity: 0.4; transform: scale(1); }
+            to   { opacity: 1;   transform: scale(1.15); }
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1da1f2;
+            text-decoration: none;
+        }
+        
+        .nav-logo i {
+            margin-right: 12px;
+            color: #1da1f2;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 32px;
+        }
+        
+        .nav-link {
+            color: #e1e8ed;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        
+        .nav-link:hover {
+            color: #1da1f2;
+            background: rgba(29, 161, 242, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            color: #1da1f2;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #1da1f2;
+            border-radius: 3px;
+        }
+        
+        .admin-container {
+            padding: 100px 24px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(224, 36, 94, 0.1);
+            border-radius: 20px;
+            color: #e0245e;
+            font-weight: 500;
+        }
+        
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        
+        .stat-card:hover {
+            background: rgba(25, 39, 52, 0.8);
+            border-color: rgba(29, 161, 242, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(29, 161, 242, 0.15);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stat-label {
+            color: #8899a6;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .stat-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .positive {
+            color: #17bf63;
+        }
+        
+        .negative {
+            color: #e0245e;
+        }
+        
+        .admin-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .admin-section {
+            background: rgba(25, 39, 52, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .section-action {
+            color: #1da1f2;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: color 0.2s ease;
+        }
+        
+        .section-action:hover {
+            color: #1a91da;
+            text-decoration: underline;
+        }
+        
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(15, 20, 25, 0.6);
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .user-item:hover {
+            background: rgba(15, 20, 25, 0.8);
+            transform: translateX(4px);
+            box-shadow: -4px 0 12px rgba(29, 161, 242, 0.1);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1da1f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+        
+        .user-email {
+            font-size: 0.875rem;
+            color: #8899a6;
+        }
+        
+        .user-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: rgba(23, 191, 99, 0.1);
+            color: #17bf63;
+        }
+        
+        .status-inactive {
+            background: rgba(224, 36, 94, 0.1);
+            color: #e0245e;
+        }
+        
+        .system-logs {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .log-item {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .log-item:last-child {
+            border-bottom: none;
+        }
+        
+        .log-icon {
+            color: #1da1f2;
+            margin-top: 2px;
+        }
+        
+        .log-content {
+            flex: 1;
+        }
+        
+        .log-message {
+            font-size: 0.875rem;
+            color: #e1e8ed;
+            margin-bottom: 4px;
+        }
+        
+        .log-time {
+            font-size: 0.75rem;
+            color: #657786;
+        }
+        
+        .system-chart {
+            height: 200px;
+            margin-top: 16px;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background: #1da1f2;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-primary:hover {
+            background: #1a91da;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(29, 161, 242, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(-1px) scale(1);
+        }
+        
+        .btn-secondary {
+            background: rgba(25, 39, 52, 0.6);
+            color: #e1e8ed;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(25, 39, 52, 0.8);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .btn-danger {
+            background: rgba(224, 36, 94, 0.1);
+            color: #e0245e;
+            border: 1px solid rgba(224, 36, 94, 0.2);
+        }
+        
+        .btn-danger:hover {
+            background: rgba(224, 36, 94, 0.2);
+            border-color: rgba(224, 36, 94, 0.3);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: rgba(25, 39, 52, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #8899a6;
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            color: #ffffff;
+        }
+        
+        .setting-item {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-label {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .setting-description {
+            font-size: 0.875rem;
+            color: #8899a6;
+            margin-bottom: 12px;
+        }
+        
+        .setting-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #1da1f2;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+        
+        @media (max-width: 768px) {
+            .admin-title {
+                font-size: 2rem;
+            }
+            
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Admin Logout Confirmation Modal */
+        .admin-logout-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .admin-logout-modal.show {
+            display: flex;
+        }
+        
+        .admin-logout-modal-content {
+            background: rgba(25, 39, 52, 0.95);
+            border: 1px solid rgba(29, 161, 242, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            animation: adminModalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes adminModalSlideIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .admin-logout-modal-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(29, 161, 242, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        
+        .admin-logout-modal-icon i {
+            font-size: 28px;
+            color: #1da1f2;
+        }
+        
+        .admin-logout-modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        .admin-logout-modal-message {
+            color: #8899a6;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+        
+        .admin-logout-modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .admin-logout-modal-btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .admin-logout-modal-btn-cancel {
+            background: rgba(255, 255, 255, 0.05);
+            color: #e1e8ed;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-logout-modal-btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .admin-logout-modal-btn-confirm {
+            background: #1da1f2;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
+        }
+        
+        .admin-logout-modal-btn-confirm:hover {
+            background: #1a91da;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(29, 161, 242, 0.4);
+        }
+
+        /* Performance Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(21, 32, 43, 0.95);
+            border-radius: 16px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: #e1e8ed;
+            font-size: 24px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #8899a6;
+            font-size: 32px;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e1e8ed;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .performance-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .performance-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(29, 161, 242, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .performance-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .performance-card-header i {
+            font-size: 24px;
+        }
+
+        .performance-card-header h4 {
+            color: #e1e8ed;
+            font-size: 16px;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .performance-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-label {
+            color: #8899a6;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #e1e8ed;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .metric-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .metric-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Logout Confirmation Modal -->
+    <div class="admin-logout-modal" id="adminLogoutModal">
+        <div class="admin-logout-modal-content">
+            <div class="admin-logout-modal-icon">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h2 class="admin-logout-modal-title">Confirm Navigation</h2>
+            <p class="admin-logout-modal-message" id="adminLogoutMessage">
+                Are you sure you want to leave the admin dashboard? You will be logged out of your admin session.
+            </p>
+            <div class="admin-logout-modal-actions">
+                <button class="admin-logout-modal-btn admin-logout-modal-btn-cancel" onclick="closeAdminLogoutModal()">Cancel</button>
+                <button class="admin-logout-modal-btn admin-logout-modal-btn-confirm" onclick="confirmAdminLogout()">Yes, Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Report Modal -->
+    <div class="modal" id="performanceModal">
+        <div class="modal-content" style="max-width: 1200px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-chart-line"></i> Detailed System Performance Report</h3>
+                <button class="close-btn" onclick="closePerformanceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="performance-grid">
+                    <!-- CPU Metrics -->
+                    <div class="performance-card">
+                        <div class="performance-card-header">
+                            <i class="fas fa-microchip" style="color: #1da1f2;"></i>
+                            <h4>CPU Performance</h4>
+                        </div>
+                        <div class="performance-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Usage</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" id="cpuBar" style="width: 0%; background: linear-gradient(90deg, #1da1f2, #0d8bd9);"></div>
+                                </div>
+                                <span class="metric-value" id="cpuPercent">0%</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Cores</span>
+                                <span class="metric-value" id="cpuCount">0</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Frequency</span>
+                                <span class="metric-value" id="cpuFreq">0 MHz</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Memory Metrics -->
+                    <div class="performance-card">
+                        <div class="performance-card-header">
+                            <i class="fas fa-memory" style="color: #17bf63;"></i>
+                            <h4>Memory Performance</h4>
+                        </div>
+                        <div class="performance-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Usage</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" id="memoryBar" style="width: 0%; background: linear-gradient(90deg, #17bf63, #12a352);"></div>
+                                </div>
+                                <span class="metric-value" id="memoryPercent">0%</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Used</span>
+                                <span class="metric-value" id="memoryUsed">0 GB</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Total</span>
+                                <span class="metric-value" id="memoryTotal">0 GB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Disk Metrics -->
+                    <div class="performance-card">
+                        <div class="performance-card-header">
+                            <i class="fas fa-hdd" style="color: #ffad1f;"></i>
+                            <h4>Disk Performance</h4>
+                        </div>
+                        <div class="performance-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Usage</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" id="diskBar" style="width: 0%; background: linear-gradient(90deg, #ffad1f, #e89b0d);"></div>
+                                </div>
+                                <span class="metric-value" id="diskPercent">0%</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Used</span>
+                                <span class="metric-value" id="diskUsed">0 GB</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Total</span>
+                                <span class="metric-value" id="diskTotal">0 GB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Network Metrics -->
+                    <div class="performance-card">
+                        <div class="performance-card-header">
+                            <i class="fas fa-network-wired" style="color: #e1245d;"></i>
+                            <h4>Network Activity</h4>
+                        </div>
+                        <div class="performance-metrics">
+                            <div class="metric-row">
+                                <span class="metric-label">Sent</span>
+                                <span class="metric-value" id="netSent">0 MB</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Received</span>
+                                <span class="metric-value" id="netRecv">0 MB</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">API Calls</span>
+                                <span class="metric-value" id="apiCalls">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Process Metrics -->
+                    <div class="performance-card">
+                        <div class="performance-card-header">
+                            <i class="fas fa-server" style="color: #794bc4;"></i>
+                            <h4>Process Metrics</h4>
+                        </div>
+                        <div class="performance-metrics">
+                            <div class="metric-row">
+                                <span class="metric-label">Memory</span>
+                                <span class="metric-value" id="processMemory">0 MB</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">CPU</span>
+                                <span class="metric-value" id="processCpu">0%</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Status</span>
+                                <span class="metric-value" style="color: #17bf63;">Running</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Info -->
+                    <div class="performance-card">
+                        <div class="performance-card-header">
+                            <i class="fas fa-info-circle" style="color: #1da1f2;"></i>
+                            <h4>System Information</h4>
+                        </div>
+                        <div class="performance-metrics">
+                            <div class="metric-row">
+                                <span class="metric-label">Platform</span>
+                                <span class="metric-value">Windows</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Updated</span>
+                                <span class="metric-value" id="lastUpdate">Just now</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Uptime</span>
+                                <span class="metric-value" id="uptime">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <button onclick="refreshPerformanceData()" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-animation" aria-hidden="true"></div>
+    
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>NeuroSight</span>
+            </a>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="admin_dashboard.html" class="nav-link active">Admin</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showAdminLogoutModal(event, 'admin_login.html', 'logout')">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="admin-container">
+        <div class="admin-header">
+            <h1 class="admin-title">Admin Dashboard</h1>
+            <div class="admin-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>Administrator</span>
+            </div>
+        </div>
+        
+        <div class="admin-stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-users"></i>
+                    <span>Registered users</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Active Predictions</div>
+                <div class="stat-value" id="activePredictions">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Prediction requests</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">System Load</div>
+                <div class="stat-value" id="systemLoad">0%</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-server"></i>
+                    <span>Current load</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">API Calls</div>
+                <div class="stat-value" id="apiCalls">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Total requests</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="admin-sections">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Users</h2>
+                    <a href="#" class="section-action" onclick="openAllUsers(event)">View All</a>
+                </div>
+                
+                <div class="user-list" id="userList">
+                    <div class="user-item">
+                        <div class="user-avatar">--</div>
+                        <div class="user-info">
+                            <div class="user-name">Loading...</div>
+                            <div class="user-email">Please wait</div>
+                        </div>
+                        <div class="user-status status-active">--</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">System Logs</h2>
+                    <a href="#" class="section-action" onclick="openAllLogs(event)">View All</a>
+                </div>
+                
+                <div class="system-logs" id="systemLogs">
+                    <div class="log-item">
+                        <i class="fas fa-info-circle log-icon"></i>
+                        <div class="log-content">
+                            <div class="log-message">Loading system logs...</div>
+                            <div class="log-time">Please wait</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title">System Performance</h2>
+                <a href="#" class="section-action" onclick="showPerformanceModal(event)">Detailed Report</a>
+            </div>
+            
+            <canvas id="systemChart" class="system-chart"></canvas>
+        </div>
+        
+        <div class="admin-actions">
+            <button class="btn btn-primary" onclick="exportData()">
+                <i class="fas fa-download"></i>
+                <span>Export Data</span>
+            </button>
+            
+            <button class="btn btn-secondary" onclick="refreshCache()">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh Cache</span>
+            </button>
+            
+            <button class="btn btn-secondary" onclick="openSettings()">
+                <i class="fas fa-cog"></i>
+                <span>System Settings</span>
+            </button>
+        </div>
+        
+        <!-- System Settings Modal -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">System Settings</h2>
+                    <button class="modal-close" onclick="closeSettings()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-label">Auto Refresh Dashboard</div>
+                    <div class="setting-description">Automatically refresh data every 30 seconds</div>
+                    <div class="setting-toggle">
+                        <div class="toggle-switch active" id="autoRefreshToggle" onclick="toggleSetting(this)"></div>
+                        <span style="color: #8899a6;">Enabled</span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-label">Email Notifications</div>
+                    <div class="setting-description">Receive email alerts for system events</div>
+                    <div class="setting-toggle">
+                        <div class="toggle-switch" id="emailNotificationsToggle" onclick="toggleSetting(this)"></div>
+                        <span style="color: #8899a6;">Disabled</span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-label">Debug Mode</div>
+                    <div class="setting-description">Show detailed error logs and system information</div>
+                    <div class="setting-toggle">
+                        <div class="toggle-switch" id="debugModeToggle" onclick="toggleSetting(this)"></div>
+                        <span style="color: #8899a6;">Disabled</span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-label">Maintenance Mode</div>
+                    <div class="setting-description">Temporarily disable user access for maintenance</div>
+                    <div class="setting-toggle">
+                        <div class="toggle-switch" id="maintenanceModeToggle" onclick="toggleSetting(this)"></div>
+                        <span style="color: #8899a6;">Disabled</span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-label">Data Retention</div>
+                    <div class="setting-description">Keep chat logs for 90 days</div>
+                    <div style="margin-top: 12px;">
+                        <select style="width: 100%; padding: 10px; background: rgba(15, 20, 25, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; color: #e1e8ed; font-size: 14px;">
+                            <option value="30">30 days</option>
+                            <option value="60">60 days</option>
+                            <option value="90" selected>90 days</option>
+                            <option value="180">180 days</option>
+                            <option value="365">1 year</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="saveSettings()">
+                        <i class="fas fa-save"></i>
+                        Save Settings
+                    </button>
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="closeSettings()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- All Users Modal -->
+        <div class="modal" id="allUsersModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">All Registered Users</h2>
+                    <button class="modal-close" onclick="closeAllUsers()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-search" style="margin-bottom: 20px;">
+                    <input type="text" id="userSearchInput" placeholder="Search users by name or email..." 
+                           style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 14px;" 
+                           onkeyup="filterUsers()">
+                </div>
+                
+                <div id="allUsersList" style="max-height: 400px; overflow-y: auto;">
+                    <div class="user-item">
+                        <div class="user-avatar">--</div>
+                        <div class="user-info">
+                            <div class="user-name">Loading users...</div>
+                            <div class="user-email">Please wait</div>
+                        </div>
+                        <div class="user-status status-active">--</div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="exportUsers()">
+                        <i class="fas fa-download"></i>
+                        Export Users
+                    </button>
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="closeAllUsers()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- All System Logs Modal -->
+        <div class="modal" id="allLogsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">All System Logs</h2>
+                    <button class="modal-close" onclick="closeAllLogs()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-search" style="margin-bottom: 20px; display: flex; gap: 12px;">
+                    <input type="text" id="logSearchInput" placeholder="Search logs by message or user..." 
+                           style="flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 14px;" 
+                           onkeyup="filterLogs()">
+                    <select id="logCategoryFilter" onchange="filterLogs()" 
+                            style="padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 14px;">
+                        <option value="all">All Categories</option>
+                        <option value="authentication">Authentication</option>
+                        <option value="user_management">User Management</option>
+                        <option value="admin_action">Admin Actions</option>
+                        <option value="system">System Events</option>
+                        <option value="chat_interaction">Chat Interactions</option>
+                        <option value="prediction">Predictions</option>
+                        <option value="error">Errors</option>
+                    </select>
+                    <select id="logTypeFilter" onchange="filterLogs()" 
+                            style="padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 14px;">
+                        <option value="all">All Types</option>
+                        <option value="info">Info</option>
+                        <option value="success">Success</option>
+                        <option value="warning">Warning</option>
+                        <option value="error">Error</option>
+                        <option value="security">Security</option>
+                    </select>
+                </div>
+                
+                <div id="allLogsList" style="max-height: 400px; overflow-y: auto;">
+                    <div class="log-item">
+                        <i class="fas fa-info-circle log-icon"></i>
+                        <div class="log-content">
+                            <div class="log-message">Loading logs...</div>
+                            <div class="log-time">Please wait</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="exportLogs()">
+                        <i class="fas fa-download"></i>
+                        Export Logs
+                    </button>
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="closeAllLogs()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // Background is CSS-only (bg-animation div — zero JS, zero CPU)
+
+        // ===== ADMIN AUTH HELPER =====
+        // Attaches the X-User-Id header required by require_admin() on the backend.
+        function adminFetch(url, options = {}) {
+            const adminUserId = localStorage.getItem('admin_user_id');
+            return fetch(url, {
+                ...options,
+                headers: {
+                    ...(options.headers || {}),
+                    'X-User-Id': adminUserId || ''
+                }
+            });
+        }
+
+        // ===== FETCH REAL DATA FROM FIREBASE =====
+
+        // Load admin statistics
+        async function loadAdminStats() {
+            try {
+                const response = await adminFetch('/api/admin/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Animate counter for total users
+                    animateCounter('totalUsers', data.total_users);
+                    
+                    // Update active predictions
+                    document.getElementById('activePredictions').textContent = data.active_predictions;
+                    
+                    // Update system load
+                    document.getElementById('systemLoad').textContent = data.system_load + '%';
+                    
+                    // Animate counter for API calls
+                    animateCounter('apiCalls', data.api_calls);
+                } else {
+                    console.warn('Failed to load admin stats, showing zeros');
+                }
+            } catch (error) {
+                console.error('Error loading admin stats:', error);
+            }
+        }
+        
+        // Load recent users
+        async function loadRecentUsers() {
+            try {
+                const response = await adminFetch('/api/admin/recent-users');
+                if (response.ok) {
+                    const data = await response.json();
+                    const userList = document.getElementById('userList');
+                    
+                    if (data.users && data.users.length > 0) {
+                        userList.innerHTML = '';
+                        data.users.forEach(user => {
+                            const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                            const userItem = document.createElement('div');
+                            userItem.className = 'user-item';
+                            userItem.style.opacity = '0';
+                            userItem.style.animation = 'fadeInUp 0.5s ease forwards';
+                            
+                            userItem.innerHTML = `
+                                <div class="user-avatar">${initials}</div>
+                                <div class="user-info">
+                                    <div class="user-name">${user.name}</div>
+                                    <div class="user-email">${user.email}</div>
+                                </div>
+                                <div class="user-status status-${user.status}">${user.status}</div>
+                            `;
+                            
+                            userList.appendChild(userItem);
+                        });
+                    } else {
+                        userList.innerHTML = '<div class="user-item"><div class="user-info"><div class="user-name">No users found</div></div></div>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading recent users:', error);
+            }
+        }
+        
+        // Load system logs
+        async function loadSystemLogs() {
+            try {
+                const response = await adminFetch('/api/admin/system-logs');
+                if (response.ok) {
+                    const data = await response.json();
+                    const logContainer = document.getElementById('systemLogs');
+                    
+                    if (data.logs && data.logs.length > 0) {
+                        logContainer.innerHTML = '';
+                        data.logs.forEach(log => {
+                            const iconClass = log.type === 'error' ? 'fa-exclamation-triangle' : 
+                                            log.type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+                            
+                            const logItem = document.createElement('div');
+                            logItem.className = 'log-item';
+                            logItem.style.opacity = '0';
+                            logItem.style.animation = 'fadeInUp 0.5s ease forwards';
+                            
+                            logItem.innerHTML = `
+                                <i class="fas ${iconClass} log-icon"></i>
+                                <div class="log-content">
+                                    <div class="log-message">${log.message}</div>
+                                    <div class="log-time">${formatTimestamp(log.timestamp)}</div>
+                                </div>
+                            `;
+                            
+                            logContainer.appendChild(logItem);
+                        });
+                    } else {
+                        logContainer.innerHTML = '<div class="log-item"><i class="fas fa-info-circle log-icon"></i><div class="log-content"><div class="log-message">No system logs found</div></div></div>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading system logs:', error);
+            }
+        }
+        
+        // Animate counter with smooth counting effect
+        function animateCounter(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            const duration = 1500; // 1.5 seconds
+            const startValue = 0;
+            const startTime = performance.now();
+            
+            function updateCounter(currentTime) {
+                const elapsedTime = currentTime - startTime;
+                const progress = Math.min(elapsedTime / duration, 1);
+                
+                // Easing function for smooth animation
+                const easeOutQuad = progress * (2 - progress);
+                const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOutQuad);
+                
+                element.textContent = currentValue.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = targetValue.toLocaleString();
+                }
+            }
+            
+            requestAnimationFrame(updateCounter);
+        }
+        
+        // Format timestamp to readable format
+        function formatTimestamp(timestamp) {
+            if (!timestamp || timestamp === 'Unknown') return 'Unknown';
+            
+            try {
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diffInHours = (now - date) / (1000 * 60 * 60);
+                
+                if (diffInHours < 1) {
+                    return 'Just now';
+                } else if (diffInHours < 24) {
+                    return `${Math.floor(diffInHours)} hours ago`;
+                } else {
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                }
+            } catch (e) {
+                return timestamp;
+            }
+        }
+        
+        // Load all data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check admin authentication
+            checkAdminAuth();
+            
+            loadAdminStats();
+            loadRecentUsers();
+            loadSystemLogs();
+            loadSettings();
+            
+            // Refresh data every 30 seconds
+            setInterval(() => {
+                loadAdminStats();
+                loadRecentUsers();
+                loadSystemLogs();
+            }, 30000);
+        });
+        
+        // Check if user is authenticated admin
+        function checkAdminAuth() {
+            const adminRole = localStorage.getItem('admin_role');
+            const adminUserId = localStorage.getItem('admin_user_id');
+            
+            if (!adminUserId || adminRole !== 'admin') {
+                // Not authenticated as admin, redirect to admin login
+                window.location.href = 'admin_login.html';
+                return;
+            }
+            
+            // Update admin name in header if available
+            const adminName = localStorage.getItem('admin_name');
+            if (adminName) {
+                const adminTitle = document.querySelector('.admin-title');
+                if (adminTitle) {
+                    adminTitle.textContent = `Admin Dashboard - ${adminName}`;
+                }
+            }
+        }
+        
+        // ===== SYSTEM SETTINGS =====
+        
+        // Load settings from backend
+        async function loadSettings() {
+            try {
+                const response = await adminFetch('/api/admin/settings');
+                if (response.ok) {
+                    const settings = await response.json();
+                    
+                    // Update toggle switches
+                    updateToggle('autoRefreshToggle', settings.auto_refresh);
+                    updateToggle('emailNotificationsToggle', settings.email_notifications);
+                    updateToggle('debugModeToggle', settings.debug_mode);
+                    updateToggle('maintenanceModeToggle', settings.maintenance_mode);
+                    
+                    // Update data retention dropdown
+                    const retentionSelect = document.querySelector('select');
+                    if (retentionSelect) {
+                        retentionSelect.value = settings.data_retention || 90;
+                    }
+                    
+                    // Apply maintenance mode effect
+                    if (settings.maintenance_mode) {
+                        showMaintenanceWarning();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+        
+        // Update toggle switch state
+        function updateToggle(toggleId, isActive) {
+            const toggle = document.getElementById(toggleId);
+            const label = toggle.parentElement.querySelector('span');
+            
+            if (isActive) {
+                toggle.classList.add('active');
+                label.textContent = 'Enabled';
+                label.style.color = '#17bf63';
+            } else {
+                toggle.classList.remove('active');
+                label.textContent = 'Disabled';
+                label.style.color = '#8899a6';
+            }
+        }
+        
+        // Show maintenance mode warning
+        function showMaintenanceWarning() {
+            const warning = document.createElement('div');
+            warning.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(255, 173, 31, 0.95);
+                color: #0f1419;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            `;
+            warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Maintenance Mode Active';
+            document.body.appendChild(warning);
+        }
+        
+        // ===== ADMIN ACTION FUNCTIONS =====
+        
+        // Export data as JSON file
+        async function exportData() {
+            try {
+                const btn = event.target.closest('.btn');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+                btn.disabled = true;
+                
+                const response = await adminFetch('/api/admin/export-data');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Create download link
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `neurosight_data_export_${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showNotification('Data exported successfully!', 'success');
+                } else {
+                    showNotification('Failed to export data', 'error');
+                }
+                
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                showNotification('Error exporting data', 'error');
+                event.target.closest('.btn').disabled = false;
+            }
+        }
+        
+        // Refresh cache
+        async function refreshCache() {
+            try {
+                const btn = event.target.closest('.btn');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+                btn.disabled = true;
+                
+                const response = await adminFetch('/api/admin/refresh-cache', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    showNotification('Cache refreshed successfully!', 'success');
+                    
+                    // Reload all data
+                    loadAdminStats();
+                    loadRecentUsers();
+                    loadSystemLogs();
+                } else {
+                    showNotification('Failed to refresh cache', 'error');
+                }
+                
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            } catch (error) {
+                console.error('Error refreshing cache:', error);
+                showNotification('Error refreshing cache', 'error');
+                event.target.closest('.btn').disabled = false;
+            }
+        }
+        
+        // Open settings modal
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+        }
+        
+        // Close settings modal
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+        
+        // Open all users modal
+        function openAllUsers(event) {
+            if (event) event.preventDefault();
+            document.getElementById('allUsersModal').classList.add('active');
+            loadAllUsers();
+        }
+        
+        // Close all users modal
+        function closeAllUsers() {
+            document.getElementById('allUsersModal').classList.remove('active');
+        }
+        
+        // Load all users
+        async function loadAllUsers() {
+            const allUsersList = document.getElementById('allUsersList');
+            
+            try {
+                const response = await adminFetch('/api/admin/users');
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch users');
+                }
+                
+                const users = await response.json();
+                
+                if (users.length === 0) {
+                    allUsersList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #8899a6;">
+                            <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                            <p>No users found</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                allUsersList.innerHTML = users.map(user => {
+                    const initials = user.name 
+                        ? user.name.split(' ').map(n => n.charAt(0).toUpperCase()).join('').substring(0, 2) 
+                        : 'U';
+                    
+                    const createdDate = user.created_at 
+                        ? new Date(user.created_at).toLocaleDateString() 
+                        : 'Unknown';
+                    
+                    return `
+                        <div class="user-item" style="margin-bottom: 12px; padding: 16px; background: rgba(15,20,25,0.4); border-radius: 8px;">
+                            <div class="user-avatar">${initials}</div>
+                            <div class="user-info" style="flex: 1;">
+                                <div class="user-name">${user.name || 'Unknown User'}</div>
+                                <div class="user-email">${user.email || 'No email'}</div>
+                                <div style="font-size: 12px; color: #8899a6; margin-top: 4px;">
+                                    <i class="fas fa-calendar"></i> Joined: ${createdDate}
+                                </div>
+                            </div>
+                            <div class="user-status ${user.status === 'active' ? 'status-active' : 'status-inactive'}">
+                                ${user.status || 'Active'}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading all users:', error);
+                allUsersList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #e0245e;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <p>Failed to load users</p>
+                        <p style="font-size: 14px; margin-top: 8px;">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Filter users in modal
+        function filterUsers() {
+            const searchInput = document.getElementById('userSearchInput').value.toLowerCase();
+            const userItems = document.querySelectorAll('#allUsersList .user-item');
+            
+            userItems.forEach(item => {
+                const name = item.querySelector('.user-name').textContent.toLowerCase();
+                const email = item.querySelector('.user-email').textContent.toLowerCase();
+                
+                if (name.includes(searchInput) || email.includes(searchInput)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        // Export users to CSV
+        function exportUsers() {
+            const userItems = document.querySelectorAll('#allUsersList .user-item');
+            let csv = 'Name,Email,Status,Joined Date\\n';
+            
+            userItems.forEach(item => {
+                if (item.style.display !== 'none') {
+                    const name = item.querySelector('.user-name').textContent;
+                    const email = item.querySelector('.user-email').textContent;
+                    const status = item.querySelector('.user-status').textContent.trim();
+                    const joinedText = item.querySelector('.user-info > div:last-child').textContent;
+                    const joined = joinedText.replace('Joined: ', '').trim();
+                    
+                    csv += `"${name}","${email}","${status}","${joined}"\\n`;
+                }
+            });
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert('Users exported successfully!');
+        }
+        
+        // Open all logs modal
+        function openAllLogs(event) {
+            if (event) event.preventDefault();
+            document.getElementById('allLogsModal').classList.add('active');
+            loadAllLogs();
+        }
+        
+        // Close all logs modal
+        function closeAllLogs() {
+            document.getElementById('allLogsModal').classList.remove('active');
+        }
+        
+        // Load all system logs
+        async function loadAllLogs() {
+            const allLogsList = document.getElementById('allLogsList');
+            
+            try {
+                const response = await adminFetch('/api/admin/system-logs');
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch logs');
+                }
+                
+                const data = await response.json();
+                const logs = data.logs || [];
+                
+                if (logs.length === 0) {
+                    allLogsList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #8899a6;">
+                            <i class="fas fa-clipboard-list" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                            <p>No system logs found</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                allLogsList.innerHTML = logs.map(log => {
+                    const iconClass = getLogIcon(log.type, log.category);
+                    const categoryBadge = log.category ? `<span style="display: inline-block; padding: 2px 8px; background: rgba(29,161,242,0.1); border-radius: 4px; font-size: 11px; color: #1da1f2; margin-left: 8px;">${log.category}</span>` : '';
+                    
+                    return `
+                        <div class="log-item" data-category="${log.category || 'general'}" data-type="${log.type || 'info'}" style="margin-bottom: 12px; padding: 16px; background: rgba(15,20,25,0.4); border-radius: 8px; border-left: 3px solid ${getLogColor(log.type)};">
+                            <i class="${iconClass} log-icon" style="color: ${getLogColor(log.type)};"></i>
+                            <div class="log-content" style="flex: 1;">
+                                <div class="log-message">
+                                    ${log.message}
+                                    ${categoryBadge}
+                                    ${log.user_id ? `<span style="font-size: 12px; color: #8899a6; margin-left: 8px;">User: ${log.user_id.substring(0, 8)}...</span>` : ''}
+                                </div>
+                                <div class="log-time" style="font-size: 12px; color: #8899a6; margin-top: 4px;">
+                                    <i class="fas fa-clock"></i> ${log.timestamp}
+                                </div>
+                                ${log.details && Object.keys(log.details).length > 0 ? `
+                                    <div style="font-size: 12px; color: #657786; margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px;">
+                                        <strong>Details:</strong> ${JSON.stringify(log.details)}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading all logs:', error);
+                allLogsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #e0245e;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <p>Failed to load logs</p>
+                        <p style="font-size: 14px; margin-top: 8px;">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Helper function to get log icon based on type and category
+        function getLogIcon(type, category) {
+            if (type === 'error') return 'fas fa-exclamation-circle';
+            if (type === 'warning') return 'fas fa-exclamation-triangle';
+            if (type === 'success') return 'fas fa-check-circle';
+            if (type === 'security') return 'fas fa-shield-alt';
+            
+            if (category === 'authentication') return 'fas fa-sign-in-alt';
+            if (category === 'user_management') return 'fas fa-users';
+            if (category === 'admin_action') return 'fas fa-user-shield';
+            if (category === 'system') return 'fas fa-server';
+            if (category === 'chat_interaction') return 'fas fa-comments';
+            if (category === 'prediction') return 'fas fa-chart-line';
+            
+            return 'fas fa-info-circle';
+        }
+        
+        // Helper function to get log color based on type
+        function getLogColor(type) {
+            switch(type) {
+                case 'error': return '#e0245e';
+                case 'warning': return '#ffad1f';
+                case 'success': return '#17bf63';
+                case 'security': return '#794bc4';
+                default: return '#1da1f2';
+            }
+        }
+        
+        // Filter logs
+        function filterLogs() {
+            const searchInput = document.getElementById('logSearchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('logCategoryFilter').value;
+            const typeFilter = document.getElementById('logTypeFilter').value;
+            const logItems = document.querySelectorAll('#allLogsList .log-item');
+            
+            logItems.forEach(item => {
+                const message = item.querySelector('.log-message').textContent.toLowerCase();
+                const category = item.getAttribute('data-category');
+                const type = item.getAttribute('data-type');
+                
+                const matchesSearch = message.includes(searchInput);
+                const matchesCategory = categoryFilter === 'all' || category === categoryFilter;
+                const matchesType = typeFilter === 'all' || type === typeFilter;
+                
+                if (matchesSearch && matchesCategory && matchesType) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        // Export logs to CSV
+        function exportLogs() {
+            const logItems = document.querySelectorAll('#allLogsList .log-item');
+            let csv = 'Timestamp,Category,Type,Message,User ID\\n';
+            
+            logItems.forEach(item => {
+                if (item.style.display !== 'none') {
+                    const message = item.querySelector('.log-message').textContent.replace(/"/g, '""');
+                    const timestamp = item.querySelector('.log-time').textContent.replace('🕒 ', '').trim();
+                    const category = item.getAttribute('data-category');
+                    const type = item.getAttribute('data-type');
+                    const userIdMatch = message.match(/User: ([a-zA-Z0-9]+)/);
+                    const userId = userIdMatch ? userIdMatch[1] : '';
+                    
+                    csv += `"${timestamp}","${category}","${type}","${message}","${userId}"\\n`;
+                }
+            });
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `system_logs_export_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert('Logs exported successfully!');
+        }
+        
+        // Toggle setting switch
+        function toggleSetting(element) {
+            element.classList.toggle('active');
+            const label = element.parentElement.querySelector('span');
+            if (element.classList.contains('active')) {
+                label.textContent = 'Enabled';
+                label.style.color = '#17bf63';
+            } else {
+                label.textContent = 'Disabled';
+                label.style.color = '#8899a6';
+            }
+        }
+        
+        // Save settings
+        async function saveSettings() {
+            try {
+                // Collect current settings
+                const settings = {
+                    auto_refresh: document.getElementById('autoRefreshToggle').classList.contains('active'),
+                    email_notifications: document.getElementById('emailNotificationsToggle').classList.contains('active'),
+                    debug_mode: document.getElementById('debugModeToggle').classList.contains('active'),
+                    maintenance_mode: document.getElementById('maintenanceModeToggle').classList.contains('active'),
+                    data_retention: parseInt(document.querySelector('select').value)
+                };
+                
+                // Save to backend
+                const response = await adminFetch('/api/admin/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Show specific notifications for important settings
+                    if (settings.debug_mode) {
+                        showNotification('🐛 Debug mode enabled - Verbose logging activated', 'info');
+                    }
+                    
+                    if (settings.maintenance_mode) {
+                        showNotification('⚠️ Maintenance mode enabled - User access restricted', 'error');
+                        showMaintenanceWarning();
+                    } else {
+                        // Remove maintenance warning if disabled
+                        const existingWarning = document.querySelector('[style*="Maintenance Mode"]');
+                        if (existingWarning) existingWarning.remove();
+                    }
+                    
+                    showNotification('Settings saved successfully!', 'success');
+                    closeSettings();
+                } else {
+                    showNotification('Failed to save settings', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showNotification('Error saving settings', 'error');
+            }
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'success' ? 'rgba(23, 191, 99, 0.9)' : 
+                           type === 'error' ? 'rgba(224, 36, 94, 0.9)' : 
+                           'rgba(29, 161, 242, 0.9)';
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 90px;
+                right: 24px;
+                background: ${bgColor};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 10001;
+                font-weight: 500;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                notification.style.transform = 'translateX(400px)';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Close modal on outside click
+        document.getElementById('settingsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSettings();
+            }
+        });
+        
+        // Logout function
+        function logout(e) {
+            e.preventDefault();
+            localStorage.removeItem('admin_user_id');
+            localStorage.removeItem('admin_email');
+            localStorage.removeItem('admin_name');
+            localStorage.removeItem('admin_role');
+            window.location.href = 'admin_login.html';
+        }
+        
+        // System performance chart
+        const systemChart = document.getElementById('systemChart');
+        const systemCtx = systemChart.getContext('2d');
+        let performanceHistory = {
+            cpu: [],
+            memory: [],
+            api: []
+        };
+        
+        async function fetchSystemPerformance() {
+            try {
+                const response = await adminFetch('/api/admin/system-performance');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching system performance:', error);
+                return null;
+            }
+        }
+        
+        async function drawSystemChart() {
+            const width = systemChart.width = systemChart.offsetWidth;
+            const height = systemChart.height = systemChart.offsetHeight;
+            
+            // Clear canvas
+            systemCtx.clearRect(0, 0, width, height);
+            
+            // Fetch real-time data
+            const perfData = await fetchSystemPerformance();
+            
+            if (perfData) {
+                // Update history with real data
+                performanceHistory.cpu.push(perfData.cpu.percent);
+                performanceHistory.memory.push(perfData.memory.percent);
+                performanceHistory.api.push(Math.min(perfData.api_calls * 0.5, 100)); // Scale API calls to percentage
+                
+                // Keep only last 24 points
+                if (performanceHistory.cpu.length > 24) {
+                    performanceHistory.cpu.shift();
+                    performanceHistory.memory.shift();
+                    performanceHistory.api.shift();
+                }
+            }
+            
+            const numPoints = performanceHistory.cpu.length;
+            if (numPoints === 0) return;
+            
+            // Draw grid lines
+            systemCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            systemCtx.lineWidth = 1;
+            
+            // Horizontal lines
+            for (let i = 0; i <= 5; i++) {
+                const y = (height / 5) * i;
+                systemCtx.beginPath();
+                systemCtx.moveTo(0, y);
+                systemCtx.lineTo(width, y);
+                systemCtx.stroke();
+            }
+            
+            // Vertical lines
+            for (let i = 0; i <= 10; i++) {
+                const x = (width / 10) * i;
+                systemCtx.beginPath();
+                systemCtx.moveTo(x, 0);
+                systemCtx.lineTo(x, height);
+                systemCtx.stroke();
+            }
+            
+            // Draw CPU line
+            systemCtx.strokeStyle = '#1da1f2';
+            systemCtx.lineWidth = 2;
+            systemCtx.beginPath();
+            
+            performanceHistory.cpu.forEach((value, i) => {
+                const x = (i / (numPoints - 1)) * width;
+                const y = height - (value / 100) * height;
+                
+                if (i === 0) {
+                    systemCtx.moveTo(x, y);
+                } else {
+                    systemCtx.lineTo(x, y);
+                }
+            });
+            
+            systemCtx.stroke();
+            
+            // Draw Memory line
+            systemCtx.strokeStyle = '#17bf63';
+            systemCtx.lineWidth = 2;
+            systemCtx.beginPath();
+            
+            performanceHistory.memory.forEach((value, i) => {
+                const x = (i / (numPoints - 1)) * width;
+                const y = height - (value / 100) * height;
+                
+                if (i === 0) {
+                    systemCtx.moveTo(x, y);
+                } else {
+                    systemCtx.lineTo(x, y);
+                }
+            });
+            
+            systemCtx.stroke();
+            
+            // Draw API line
+            systemCtx.strokeStyle = '#ffad1f';
+            systemCtx.lineWidth = 2;
+            systemCtx.beginPath();
+            
+            performanceHistory.api.forEach((value, i) => {
+                const x = (i / (numPoints - 1)) * width;
+                const y = height - (value / 100) * height;
+                
+                if (i === 0) {
+                    systemCtx.moveTo(x, y);
+                } else {
+                    systemCtx.lineTo(x, y);
+                }
+            });
+            
+            systemCtx.stroke();
+            
+            // Draw legend
+            const legendY = 20;
+            const legendItems = [
+                { color: '#1da1f2', label: 'CPU Usage' },
+                { color: '#17bf63', label: 'Memory Usage' },
+                { color: '#ffad1f', label: 'API Calls' }
+            ];
+            
+            legendItems.forEach((item, i) => {
+                const legendX = 20 + (i * 120);
+                
+                // Draw color box
+                systemCtx.fillStyle = item.color;
+                systemCtx.fillRect(legendX, legendY, 12, 12);
+                
+                // Draw label
+                systemCtx.fillStyle = '#e1e8ed';
+                systemCtx.font = '12px Inter, sans-serif';
+                systemCtx.fillText(item.label, legendX + 18, legendY + 10);
+            });
+        }
+        
+        // Initial chart draw
+        drawSystemChart();
+        
+        // Redraw chart on window resize
+        window.addEventListener('resize', drawSystemChart);
+        
+        // Real-time updates every 5 seconds
+        setInterval(() => {
+            drawSystemChart();
+        }, 5000);
+        
+        // Admin Logout Modal Functions
+        let pendingNavigation = null;
+        
+        function showAdminLogoutModal(event, targetUrl, destination) {
+            if (event) event.preventDefault();
+            
+            pendingNavigation = targetUrl;
+            
+            // Customize message based on destination
+            const messageElement = document.getElementById('adminLogoutMessage');
+            if (destination === 'logout') {
+                messageElement.textContent = 'Are you sure you want to logout from the admin panel?';
+            } else {
+                messageElement.textContent = `Are you sure you want to navigate to ${destination}? You will be logged out of your admin session.`;
+            }
+            
+            document.getElementById('adminLogoutModal').classList.add('show');
+        }
+        
+        function closeAdminLogoutModal() {
+            document.getElementById('adminLogoutModal').classList.remove('show');
+            pendingNavigation = null;
+        }
+        
+        function confirmAdminLogout() {
+            // Clear admin session
+            localStorage.removeItem('admin_id');
+            localStorage.removeItem('admin_email');
+            localStorage.removeItem('admin_name');
+            
+            // Navigate to the target page
+            if (pendingNavigation) {
+                window.location.href = pendingNavigation;
+            }
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('adminLogoutModal');
+            if (event.target === modal) {
+                closeAdminLogoutModal();
+            }
+            
+            const perfModal = document.getElementById('performanceModal');
+            if (event.target === perfModal) {
+                closePerformanceModal();
+            }
+        });
+
+        // Performance Modal Functions
+        async function showPerformanceModal(event) {
+            if (event) event.preventDefault();
+            document.getElementById('performanceModal').classList.add('show');
+            await refreshPerformanceData();
+        }
+
+        function closePerformanceModal() {
+            document.getElementById('performanceModal').classList.remove('show');
+        }
+
+        async function refreshPerformanceData() {
+            try {
+                const response = await adminFetch('/api/admin/system-performance');
+                const data = await response.json();
+                
+                // Update CPU metrics
+                document.getElementById('cpuPercent').textContent = data.cpu.percent + '%';
+                document.getElementById('cpuBar').style.width = data.cpu.percent + '%';
+                document.getElementById('cpuCount').textContent = data.cpu.count;
+                document.getElementById('cpuFreq').textContent = data.cpu.frequency + ' MHz';
+                
+                // Update Memory metrics
+                document.getElementById('memoryPercent').textContent = data.memory.percent + '%';
+                document.getElementById('memoryBar').style.width = data.memory.percent + '%';
+                document.getElementById('memoryUsed').textContent = data.memory.used_gb + ' GB';
+                document.getElementById('memoryTotal').textContent = data.memory.total_gb + ' GB';
+                
+                // Update Disk metrics
+                document.getElementById('diskPercent').textContent = data.disk.percent + '%';
+                document.getElementById('diskBar').style.width = data.disk.percent + '%';
+                document.getElementById('diskUsed').textContent = data.disk.used_gb + ' GB';
+                document.getElementById('diskTotal').textContent = data.disk.total_gb + ' GB';
+                
+                // Update Network metrics
+                document.getElementById('netSent').textContent = (data.network.bytes_sent / (1024 * 1024)).toFixed(2) + ' MB';
+                document.getElementById('netRecv').textContent = (data.network.bytes_recv / (1024 * 1024)).toFixed(2) + ' MB';
+                document.getElementById('apiCalls').textContent = data.api_calls;
+                
+                // Update Process metrics
+                document.getElementById('processMemory').textContent = data.process.memory_mb + ' MB';
+                document.getElementById('processCpu').textContent = data.process.cpu_percent + '%';
+                
+                // Update last update time
+                document.getElementById('lastUpdate').textContent = 'Just now';
+                
+            } catch (error) {
+                console.error('Error refreshing performance data:', error);
+                showNotification('Failed to refresh performance data', 'error');
+            }
+        }
+        // ===== ML MODELS MANAGEMENT =====
+        async function fetchModelStatus() {
+            const listEl = document.getElementById('modelList');
+            try {
+                const response = await adminFetch('/api/admin/models/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        listEl.innerHTML = '';
+                        Object.keys(data.data).forEach(symbol => {
+                            const model = data.data[symbol];
+                            const statusColor = model.status === 'Completed' || model.status === 'Ready' ? '#17bf63' : 
+                                              model.status === 'Training' ? '#f5a623' : '#e0245e';
+                                              
+                            listEl.innerHTML += `
+                                <div class="stat-card" style="padding: 16px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <h4 style="color: #fff; margin:0;">${symbol} Model</h4>
+                                        <span style="color: ${statusColor}; font-size: 12px; font-weight: bold; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 10px;">${model.status || 'Unknown'}</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #8899a6; margin-bottom: 12px;">
+                                        Latest Version: ${model.version || '1.0'}<br>
+                                        Accuracy: ${model.accuracy || '--'}<br>
+                                        Last trained: ${model.last_trained ? new Date(model.last_trained).toLocaleString() : 'Never'}
+                                    </div>
+                                    <button class="btn btn-secondary" onclick="retrainModel('${symbol}')" style="width: 100%; padding: 6px; font-size: 12px;" ${model.status === 'Training' ? 'disabled' : ''}>
+                                        <i class="fas ${model.status === 'Training' ? 'fa-spinner fa-spin' : 'fa-graduation-cap'}"></i> 
+                                        ${model.status === 'Training' ? 'Training...' : 'Retrain Now'}
+                                    </button>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Error fetching models:", e);
+                listEl.innerHTML = '<div style="color: #e0245e;">Failed to load model status</div>';
+            }
+        }
+        
+        async function retrainModel(symbol) {
+            try {
+                showToast(`Initiating retraining for ${symbol}...`, 'info');
+                const response = await adminFetch(`/api/admin/models/retrain/${symbol}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showToast(data.message || 'Retraining started', 'success');
+                    fetchModelStatus();
+                } else {
+                    showToast(data.message || 'Error starting retraining', 'error');
+                }
+            } catch (e) {
+                console.error("Retrain error:", e);
+                showToast('Network error starting retraining', 'error');
+            }
+        }
+
+        // Initialize models
+        fetchModelStatus();
+        setInterval(fetchModelStatus, 15000); // 15 sec refresh
+        
+        // Show universal toast
+        function showToast(message, type='info') {
+            const el = document.createElement('div');
+            el.style.cssText = `position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: bold; z-index: 10000; transition: opacity 0.3s;
+                background: ${type === 'success' ? '#17bf63' : type === 'error' ? '#e0245e' : '#1da1f2'}`;
+            el.textContent = message;
+            document.body.appendChild(el);
+            setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test LLM Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 { color: #1da1f2; }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #1da1f2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1a91da; }
+        .response {
+            background: #f0f0f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #1da1f2;
+            white-space: pre-wrap;
+        }
+        .question {
+            font-weight: bold;
+            color: #333;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 NeuroSight LLM Chatbot Test</h1>
+    
+    <div class="test-section">
+        <h2>Quick Tests (Click to Try)</h2>
+        <button onclick="testMessage('Hello!')">👋 Greeting</button>
+        <button onclick="testMessage('What is Apple stock price?')">💰 Stock Price</button>
+        <button onclick="testMessage('Should I invest in NVIDIA?')">💡 Investment Advice</button>
+        <button onclick="testMessage('Explain diversification')">🎓 Learn Concept</button>
+        <button onclick="testMessage('Compare Apple vs Tesla')">⚖️ Compare Stocks</button>
+        <button onclick="testMessage('What are the risks of Bitcoin?')">⚠️ Risk Analysis</button>
+        <button onclick="testMessage('How should I invest?')">📊 Strategy</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Custom Question</h2>
+        <input type="text" id="customInput" placeholder="Type your question..." style="width: 70%; padding: 10px;">
+        <button onclick="testCustom()">Send</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Responses</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Simulating logged in user
+        localStorage.setItem("user_id", "test_user_123");
+        
+        let lastStock = null;
+
+        async function testMessage(message) {
+            const results = document.getElementById('results');
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            questionDiv.textContent = `Q: ${message}`;
+            results.appendChild(questionDiv);
+            
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        message,
+                        user_id: "test_user_123",
+                        context: { last_stock: lastStock }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                const responseDiv = document.createElement('div');
+                responseDiv.className = 'response';
+                responseDiv.textContent = `A: ${data.reply}`;
+                results.appendChild(responseDiv);
+                
+                if (data.stock_mentioned) {
+                    lastStock = data.stock_mentioned;
+                }
+                
+                results.scrollTop = results.scrollHeight;
+            } catch (error) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'response';
+                errorDiv.style.borderColor = 'red';
+                errorDiv.textContent = `❌ Error: ${error.message}`;
+                results.appendChild(errorDiv);
+            }
+        }
+        
+        function testCustom() {
+            const input = document.getElementById('customInput');
+            if (input.value.trim()) {
+                testMessage(input.value);
+                input.value = '';
+            }
+        }
+        
+        document.getElementById('customInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') testCustom();
+        });
+    </script>
+</body>
+</html>

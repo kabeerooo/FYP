@@ -1,0 +1,57 @@
+Test run: 2026-04-28
+
+============================================================
+Testing AAPL...
+  mode=return  features=['Close', 'MA10', 'MA20', 'MA50', 'Volume', 'RSI']
+  [1d] cur=267.61  pred=267.32 (-0.11%)  DOWN  conf=85.0%
+         last_hist=2026-04-27  fc_start=2026-04-28  fc_end=2026-04-28
+         date_order_ok=True  price_range_ok=True
+  [7d] cur=267.61  pred=265.49 (-0.79%)  DOWN  conf=88.0%
+         last_hist=2026-04-27  fc_start=2026-04-28  fc_end=2026-05-06
+         date_order_ok=True  price_range_ok=True
+  [30d] cur=267.61  pred=262.53 (-1.90%)  DOWN  conf=82%
+         last_hist=2026-04-27  fc_start=2026-04-28  fc_end=2026-06-08
+         date_order_ok=True  price_range_ok=True
+============================================================
+Testing NVDA...
+  mode=return  features=['Close', 'MA10', 'MA20', 'MA50', 'Volume', 'Volatility', 'RSI']
+  [1d] cur=216.61  pred=215.73 (-0.41%)  DOWN  conf=85.0%
+         last_hist=2026-04-27  fc_start=2026-04-28  fc_end=2026-04-28
+         date_order_ok=True  price_range_ok=True
+  [7d] cur=216.61  pred=214.35 (-1.04%)  DOWN  conf=80.9%
+         last_hist=2026-04-27  fc_start=2026-04-28  fc_end=2026-05-06
+         date_order_ok=True  price_range_ok=True
+  [30d] cur=216.61  pred=192.03 (-11.35%)  DOWN  conf=82%
+         last_hist=2026-04-27  fc_start=2026-04-28  fc_end=2026-06-08
+         date_order_ok=True  price_range_ok=True
+============================================================
+Testing TSLA...
+  mode=return  features=['Close', 'MA5', 'MA10', 'MA20', 'Volume', 'Volatility', 'RSI']
+  [1d] cur=378.67  pred=381.52 (+0.75%)  UP  conf=84.0%
+         last_hist=2026-04-27  fc_start=2026-04-28  fc_end=2026-04-28
+         date_order_ok=True  price_range_ok=True
+  [7d] cur=378.67  pred=378.34 (-0.09%)  DOWN  conf=69.4%
+         last_hist=2026-04-27  fc_start=2026-04-28  fc_end=2026-05-06
+         date_order_ok=True  price_range_ok=True
+  [30d] cur=378.67  pred=370.97 (-2.03%)  DOWN  conf=82%
+         last_hist=2026-04-27  fc_start=2026-04-28  fc_end=2026-06-08
+         date_order_ok=True  price_range_ok=True
+============================================================
+Testing GOLD...
+  mode=price  features=['Close', 'MA10', 'MA20', 'MA50', 'Volume', 'Volatility']
+⚠️  GOLD: model raw signal +29.7% is out-of-range, neutralizing
+  [1d] cur=4618.8  pred=4637.97 (+0.42%)  UP  conf=72%
+         last_hist=2026-04-28  fc_start=2026-04-29  fc_end=2026-04-29
+         date_order_ok=True  price_range_ok=True
+⚠️  GOLD: model raw signal +29.7% is out-of-range, neutralizing
+  [7d] cur=4618.8  pred=4673.23 (+1.18%)  UP  conf=73.0%
+         last_hist=2026-04-28  fc_start=2026-04-29  fc_end=2026-05-05
+         date_order_ok=True  price_range_ok=True
+⚠️  GOLD: model raw signal +29.7% is out-of-range, neutralizing
+  [30d] cur=4618.6  pred=4734.04 (+2.50%)  UP  conf=76.0%
+         last_hist=2026-04-28  fc_start=2026-04-29  fc_end=2026-05-28
+         date_order_ok=True  price_range_ok=True
+
+============================================================
+ISSUES SUMMARY:
+  ✅ No issues found — all assets working correctly

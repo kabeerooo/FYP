@@ -1,0 +1,154 @@
+# ======================================================
+# 🏆 GOLD (GC=F) COMPLETE TRAINING PIPELINE
+# Strategy: 10-Year Data + CNN-BiLSTM Architecture
+# ======================================================
+
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import zipfile
+import os
+import joblib
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense, Dropout, Input, Conv1D, MaxPooling1D, Bidirectional
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
+from google.colab import files
+
+# --- 1. CONFIGURATION ---
+TICKER = "GC=F"
+TRAIN_YEARS = 10  # Long-term context for commodities
+LOOKBACK = 60     # Day sequence length
+BATCH_SIZE = 32
+EPOCHS = 50
+
+# --- 2. DATA ACQUISITION ---
+print(f"--- 1. FETCHING {TRAIN_YEARS} YEARS OF DATA FOR {TICKER} ---")
+start_date = (pd.Timestamp.now() - pd.DateOffset(years=TRAIN_YEARS + 1)).strftime('%Y-%m-%d')
+df = yf.download(TICKER, start=start_date, progress=False)
+
+if len(df) == 0:
+    raise ValueError("❌ No data fetched. Check ticker or internet connection.")
+print(f"✅ Data fetched: {len(df)} rows.")
+
+# --- 3. FEATURE ENGINEERING ---
+# Gold Strategy: Trend (MAs) + Volatility
+df['MA10'] = df['Close'].rolling(window=10).mean()
+df['MA50'] = df['Close'].rolling(window=50).mean()
+df['Volatility'] = df['Close'].rolling(window=20).std()
+
+df_clean = df.dropna()
+print(f"✅ Features Created. Final Data Shape: {df_clean.shape}")
+
+# --- 4. PREPROCESSING ---
+print("\n--- 2. PREPROCESSING & SCALING ---")
+FEATURE_COLS = ['Close', 'MA10', 'MA50', 'Volatility']
+
+scaler_features = MinMaxScaler(feature_range=(0, 1))
+scaler_target = MinMaxScaler(feature_range=(0, 1))
+
+# Extract and Reshape
+data_features = df_clean[FEATURE_COLS].values
+if data_features.ndim > 2: 
+    data_features = data_features.reshape(data_features.shape[0], -1)
+
+data_target = df_clean[['Close']].values
+
+# Scale
+scaled_features = scaler_features.fit_transform(data_features)
+scaled_target = scaler_target.fit_transform(data_target)
+
+# Create Sequences
+X, y = [], []
+for i in range(LOOKBACK, len(scaled_features)):
+    X.append(scaled_features[i-LOOKBACK:i])
+    y.append(scaled_target[i])
+
+X, y = np.array(X), np.array(y)
+
+# Train/Test Split (90/10)
+split_idx = int(len(X) * 0.90)
+X_train, X_test = X[:split_idx], X[split_idx:]
+y_train, y_test = y[:split_idx], y[split_idx:]
+
+print(f"✅ Data Ready. X Shape: {X.shape}")
+
+# --- 5. MODEL ARCHITECTURE (CNN-BiLSTM) ---
+print("\n--- 3. BUILDING MODEL (CNN-BiLSTM) ---")
+# CNN extracts local patterns (sudden gold spikes)
+# BiLSTM captures long-term inflation/fear trends from both directions
+model = Sequential([
+    Input(shape=(X_train.shape[1], X_train.shape[2])),
+    
+    # 1D Convolutional Layer
+    Conv1D(filters=64, kernel_size=3, activation='relu'),
+    MaxPooling1D(pool_size=2),
+    
+    # Bidirectional LSTM
+    Bidirectional(LSTM(units=100, return_sequences=False)),
+    Dropout(0.2),
+    
+    # Output Layers
+    Dense(units=50, activation='relu'),
+    Dense(units=1)
+])
+
+model.compile(optimizer=Adam(learning_rate=0.0005), loss='mean_squared_error')
+
+# --- 6. TRAINING ---
+print("\n--- 4. TRAINING STARTED ---")
+early_stop = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+
+history = model.fit(
+    X_train, y_train,
+    epochs=EPOCHS,
+    batch_size=BATCH_SIZE,
+    validation_data=(X_test, y_test),
+    callbacks=[early_stop],
+    verbose=1
+)
+
+# --- 7. EVALUATION ---
+print("\n--- 5. EVALUATING RESULTS ---")
+predictions = model.predict(X_test)
+predictions_rescaled = scaler_target.inverse_transform(predictions)
+y_test_rescaled = scaler_target.inverse_transform(y_test)
+
+rmse = np.sqrt(np.mean((y_test_rescaled - predictions_rescaled)**2))
+mape = np.mean(np.abs((y_test_rescaled - predictions_rescaled) / y_test_rescaled)) * 100
+
+print(f"\n=== 🏆 GOLD (GC=F) RESULTS ===")
+print(f"RMSE: ${rmse:.2f}")
+print(f"MAPE: {mape:.2f}%")
+print("==============================")
+
+# Plot
+plt.figure(figsize=(12, 6))
+plt.plot(y_test_rescaled, color='gold', label='Actual Price', linewidth=2)
+plt.plot(predictions_rescaled, color='black', linestyle='--', label='Predicted Price', linewidth=1)
+plt.title(f'Gold Price Prediction (CNN-BiLSTM) | MAPE: {mape:.2f}%')
+plt.xlabel('Days')
+plt.ylabel('Price ($)')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
+# --- 8. SAVING & DOWNLOADING ---
+if mape < 5.0:
+    print("\n--- 6. PACKAGING FILES ---")
+    model.save('gold_cnn_bilstm_model.keras')
+    joblib.dump(scaler_features, 'gold_scaler_features.pkl')
+    joblib.dump(scaler_target, 'gold_scaler_target.pkl')
+    
+    zip_name = 'gold_model_bundle.zip'
+    with zipfile.ZipFile(zip_name, 'w') as zipf:
+        zipf.write('gold_cnn_bilstm_model.keras')
+        zipf.write('gold_scaler_features.pkl')
+        zipf.write('gold_scaler_target.pkl')
+        
+    print(f"🚀 Downloading {zip_name}...")
+    files.download(zip_name)
+else:
+    print("⚠️ Accuracy too low. Tuning required.")

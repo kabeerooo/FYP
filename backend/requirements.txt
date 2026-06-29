@@ -1,0 +1,41 @@
+# Core Dependencies
+fastapi
+uvicorn[standard]
+python-multipart
+jinja2
+pydantic
+httpx
+aiofiles
+
+# Data & Finance
+yfinance
+pandas
+numpy
+finnhub-python
+
+# Machine Learning (Requires Python 3.9-3.11)
+tensorflow
+scikit-learn
+joblib
+
+# NLP & Web Scraping
+beautifulsoup4
+requests
+nltk
+
+# Authentication & Database
+firebase-admin
+passlib
+
+# AI & LLM
+groq
+python-dotenv
+
+# Email Service
+sib-api-v3-sdk
+
+# System Monitoring
+psutil
+
+# Scheduling
+schedule

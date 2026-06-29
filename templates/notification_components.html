@@ -1,0 +1,54 @@
+<!-- ============================================================
+     NeuroSight Notification Components (injected via include)
+     ============================================================ -->
+
+<!-- Toast Container -->
+<div id="ns-toast-container" class="ns-toast-container"></div>
+
+<!-- Notification Bell (place this inside your nav bar) -->
+<!-- Already included in each page's nav -->
+
+<!-- Notification Dropdown Panel -->
+<div id="ns-notif-dropdown" class="ns-notif-dropdown">
+    <div class="ns-notif-header">
+        <h4>Notifications</h4>
+        <button class="ns-notif-clear" onclick="nsClearNotifications()">Clear all</button>
+    </div>
+    <div id="ns-notif-list" class="ns-notif-list">
+        <div class="ns-notif-empty"><i>🔔</i>No notifications yet</div>
+    </div>
+</div>
+
+<!-- Price Alert Creation Modal -->
+<div id="ns-alert-modal-overlay" class="ns-alert-modal-overlay">
+    <div class="ns-alert-modal">
+        <h3>🔔 Set Price Alert</h3>
+        <div class="ns-alert-form-group">
+            <label>Asset</label>
+            <select id="ns-alert-symbol">
+                <option value="AAPL">Apple (AAPL)</option>
+                <option value="NVDA">NVIDIA (NVDA)</option>
+                <option value="TSLA">Tesla (TSLA)</option>
+                <option value="GC=F">Gold (GC=F)</option>
+            </select>
+        </div>
+        <div class="ns-alert-form-row">
+            <div class="ns-alert-form-group">
+                <label>Condition</label>
+                <select id="ns-alert-condition">
+                    <option value="above">Price goes above</option>
+                    <option value="below">Price goes below</option>
+                </select>
+            </div>
+            <div class="ns-alert-form-group">
+                <label>Target Price ($)</label>
+                <input type="number" id="ns-alert-price" step="0.01" placeholder="0.00">
+            </div>
+        </div>
+        <div id="ns-active-alerts" class="ns-active-alerts"></div>
+        <div class="ns-alert-actions">
+            <button class="ns-alert-btn secondary" onclick="nsCloseAlertModal()">Cancel</button>
+            <button class="ns-alert-btn primary" onclick="nsCreateAlert()">Set Alert</button>
+        </div>
+    </div>
+</div>

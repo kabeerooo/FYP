@@ -1,0 +1,33 @@
+# Core Dependencies
+fastapi
+uvicorn[standard]
+python-multipart
+jinja2
+pydantic
+httpx
+
+# Data & Finance
+yfinance
+pandas
+numpy
+
+# Machine Learning (Requires Python 3.11 or earlier)
+tensorflow
+scikit-learn
+joblib
+
+# NLP
+beautifulsoup4
+requests
+nltk
+
+# Authentication & Database
+firebase-admin
+passlib
+
+# AI & LLM
+groq
+python-dotenv
+
+# Scheduling
+schedule
