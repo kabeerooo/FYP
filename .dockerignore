@@ -1,0 +1,39 @@
+# Git
+.git/
+.gitignore
+
+# Virtual environments (huge, not needed in image)
+.venv/
+.venv311/
+tf311_fyp/
+backend/tf311_fyp/
+**/venv/
+**/env/
+
+# Python cache
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# Secrets — NEVER bake these into the image
+backend/.env
+backend/firebase-service-account.json
+key for app passwords.txt
+
+# Dev/test files
+backend/tests/
+backend/*.txt
+backend/test_*.py
+backend/fix_*.py
+backend/reset_*.py
+backend/create_admin.py
+backend/clear_cache.py
+backend/debug_*.html
+backend/test_*.html
+codes models/
+
+# IDE / OS
+.vscode/
+.idea/
+.qodo/
+**/.DS_Store

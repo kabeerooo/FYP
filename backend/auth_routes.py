@@ -12,8 +12,15 @@ import threading
 
 # Initialize Firebase (only once)
 if not firebase_admin._apps:
-    cred_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "firebase-service-account.json"))
-    cred = credentials.Certificate(cred_path)
+    import json
+    _fb_json = os.getenv("FIREBASE_SERVICE_ACCOUNT")
+    if _fb_json:
+        # Production: credentials supplied as JSON env var
+        cred = credentials.Certificate(json.loads(_fb_json))
+    else:
+        # Local dev: read from file
+        cred_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "firebase-service-account.json"))
+        cred = credentials.Certificate(cred_path)
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
