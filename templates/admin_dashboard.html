@@ -377,8 +377,10 @@
         }
         
         .system-chart {
+            width: 100%;
             height: 200px;
             margin-top: 16px;
+            display: block;
         }
         
         .admin-actions {
@@ -567,17 +569,29 @@
         }
         
         @media (max-width: 768px) {
-            .admin-title {
-                font-size: 2rem;
-            }
-            
-            .admin-stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .admin-sections {
-                grid-template-columns: 1fr;
-            }
+            .admin-title { font-size: 1.8rem; }
+            .admin-stats { grid-template-columns: repeat(2, 1fr); }
+            .admin-sections { grid-template-columns: 1fr; }
+            .nav-menu { gap: 6px; }
+            .nav-link { font-size: 12px; padding: 6px 8px; }
+            .admin-container { padding: 80px 16px 32px; }
+        }
+
+        @media (max-width: 480px) {
+            .admin-title { font-size: 1.4rem; }
+            .admin-stats { grid-template-columns: 1fr; }
+            .nav-logo { font-size: 18px; }
+            .nav-logo i { margin-right: 6px; }
+            .nav-menu { gap: 2px; }
+            .nav-link { font-size: 11px; padding: 5px 6px; }
+            .admin-container { padding: 72px 12px 24px; }
+            /* Logout modal compact on small screens */
+            .admin-logout-modal-content { padding: 20px; max-height: 90vh; overflow-y: auto; }
+            .admin-logout-modal-icon { width: 44px; height: 44px; margin-bottom: 12px; }
+            .admin-logout-modal-icon i { font-size: 20px; }
+            .admin-logout-modal-title { font-size: 1.1rem; margin-bottom: 8px; }
+            .admin-logout-modal-message { font-size: 0.85rem; margin-bottom: 16px; }
+            .admin-logout-modal-btn { font-size: 14px; padding: 10px; }
         }
         
         /* Admin Logout Confirmation Modal */

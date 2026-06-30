@@ -122,9 +122,10 @@
         }
         .ns-bell-badge.show { display: block; }
         .ns-notif-dropdown {
-            position: absolute; top: calc(100% + 8px); right: 0; width: 320px; max-height: 360px;
+            position: fixed; top: calc(var(--nav-height) + 4px); right: 8px;
+            width: min(320px, calc(100vw - 16px)); max-height: 360px;
             overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: var(--radius-md); box-shadow: var(--shadow-elevated); display: none; z-index: 100; padding: 12px 0;
+            border-radius: var(--radius-md); box-shadow: var(--shadow-elevated); display: none; z-index: 1000; padding: 12px 0;
         }
         .ns-notif-dropdown.open { display: block; }
         .ns-notif-header { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 10px; border-bottom: 1px solid var(--border); }
@@ -699,7 +700,7 @@
             </div>
             <div class="sb-divider"></div>
             <div class="sb-section">
-                <a href="/login.html" class="sb-item"><i class="fas fa-user"></i> Account</a>
+                <a href="#" class="sb-item" onclick="openProfileModal(); return false;"><i class="fas fa-user"></i> Account</a>
                 <a href="/admin_login.html" class="sb-item"><i class="fas fa-shield-halved"></i> Admin Panel</a>
                 <div class="sb-divider"></div>
                 <button class="sb-item danger" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Log Out</button>
@@ -715,7 +716,7 @@
             <div class="modal-msg">You'll need to sign in again to access your portfolio and AI predictions.</div>
             <div class="modal-actions">
                 <button class="modal-btn modal-btn-ghost" id="logoutCancel">Cancel</button>
-                <a href="/login.html" class="modal-btn modal-btn-danger" style="text-align:center" onclick="localStorage.clear()">Log Out</a>
+                <button class="modal-btn modal-btn-danger" onclick="doLogout()">Log Out</button>
             </div>
         </div>
     </div>
@@ -1300,7 +1301,22 @@
         /* ═══════════════════════════════════════════════════
            INIT
            ═══════════════════════════════════════════════════ */
+        function doLogout() {
+            localStorage.clear();
+            window.location.replace('/login.html');
+        }
+
+        function openProfileModal() {
+            closeSidebar();
+            profileModal.classList.add('show');
+        }
+
         async function init() {
+            // Auth guard — redirect to login if not authenticated
+            if (!localStorage.getItem('user_id')) {
+                window.location.replace('/login.html');
+                return;
+            }
             updateUserUI();
             setDate();
             initScrollReveal();

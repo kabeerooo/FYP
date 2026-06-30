@@ -515,11 +515,13 @@
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 12px;
-            padding: 24px;
+            padding: 16px;
             margin-bottom: 32px;
             height: 400px;
             position: relative;
             cursor: crosshair;
+            display: flex;
+            flex-direction: column;
         }
         
         .price-tooltip {
@@ -634,7 +636,9 @@
         
         .chart-canvas {
             width: 100%;
-            height: calc(100% - 50px);
+            flex: 1;
+            min-height: 0;
+            display: block;
         }
         
         .prediction-section {
@@ -1462,7 +1466,7 @@
             }
             
             .chart-container {
-                height: 300px;
+                height: 380px;
             }
             .sidebar {
                 width: 320px;
@@ -1540,7 +1544,7 @@
             }
 
             .chart-container {
-                height: 250px;
+                height: 360px;
             }
 
             .prediction-cards {
@@ -1613,7 +1617,7 @@
             }
 
             .chart-container {
-                height: 220px;
+                height: 300px;
             }
 
             .prediction-price {
@@ -2725,7 +2729,8 @@
         let predictionPoints = []; // For future predictions (yellow spikes)
         let predictionValues = []; // Raw predicted values for scaling
         let pendingPredictionValue = null;
-        let chartPadding = 68; // wide enough for labels like "$4,077.30"
+        let chartPadding = 72; // left-only padding — space for price labels like "$4,077.30"
+        let vPad = 14;         // top / bottom / right padding (small so chart fills the space)
         let chartWidth = 0;
         let chartHeight = 0;
         let historicalWidth = 0; // Tracks the pixel boundary between history & forecast zones
@@ -2778,9 +2783,9 @@
             
             // Convert price data to canvas coordinates (left 70% of chart)
             chartPoints = historicalPrices.map((data, i) => {
-                const x = (i / (historicalPrices.length - 1)) * (historicalWidth - chartPadding * 2) + chartPadding;
+                const x = (i / (historicalPrices.length - 1)) * (historicalWidth - chartPadding - vPad) + chartPadding;
                 const normalizedPrice = (data.price - minPrice) / priceRange;
-                const y = chartHeight - chartPadding - (normalizedPrice * (chartHeight - chartPadding * 2));
+                const y = chartHeight - vPad - (normalizedPrice * (chartHeight - vPad * 2));
                 return { 
                     x, 
                     y, 
@@ -2794,11 +2799,11 @@
             predictionPoints = [];
             if (predictionValues.length > 0) {
                 const predictionStartX = historicalWidth + 10;
-                const predictionEndX = chartWidth - chartPadding;
+                const predictionEndX = chartWidth - vPad;
                 const step = (predictionEndX - predictionStartX) / predictionValues.length;
                 predictionPoints = predictionValues.map((value, i) => {
                     const normalizedPrice = (value - minPrice) / priceRange;
-                    const y = chartHeight - chartPadding - (normalizedPrice * (chartHeight - chartPadding * 2));
+                    const y = chartHeight - vPad - (normalizedPrice * (chartHeight - vPad * 2));
                     const x = predictionStartX + step * (i + 1);
                     return { x, y, price: value };
                 });
@@ -2808,18 +2813,18 @@
             priceCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             priceCtx.lineWidth = 1;
             
-            // Horizontal lines with smart price labels — 4 divisions = 5 lines, well-spaced
-            for (let i = 0; i <= 4; i++) {
-                const y = chartPadding + (i / 4) * (chartHeight - chartPadding * 2);
+            // 3 horizontal lines: top / mid / bottom — easy to read on mobile
+            for (let i = 0; i <= 2; i++) {
+                const y = vPad + (i / 2) * (chartHeight - vPad * 2);
                 priceCtx.beginPath();
                 priceCtx.moveTo(chartPadding, y);
-                priceCtx.lineTo(chartWidth - chartPadding, y);
+                priceCtx.lineTo(chartWidth - vPad, y);
                 priceCtx.stroke();
 
-                // Draw price labels with smart formatting
-                const labelPrice = maxPrice - (i / 4) * priceRange;
-                priceCtx.fillStyle = '#8899a6';
-                priceCtx.font = '10px Inter, sans-serif';
+                // Draw price labels — bold, 13px, readable for all ages
+                const labelPrice = maxPrice - (i / 2) * priceRange;
+                priceCtx.fillStyle = '#c8d8e8';
+                priceCtx.font = 'bold 13px Inter, sans-serif';
                 priceCtx.textAlign = 'right';
                 
                 // Smart price formatting based on value
@@ -2843,17 +2848,17 @@
             
             // Vertical lines
             for (let i = 0; i <= 10; i++) {
-                const x = chartPadding + (i / 10) * (chartWidth - chartPadding * 2);
+                const x = chartPadding + (i / 10) * (chartWidth - chartPadding - vPad);
                 priceCtx.beginPath();
-                priceCtx.moveTo(x, chartPadding);
-                priceCtx.lineTo(x, chartHeight - chartPadding);
+                priceCtx.moveTo(x, vPad);
+                priceCtx.lineTo(x, chartHeight - vPad);
                 priceCtx.stroke();
             }
-            
+
             // Draw volume bars at the bottom (20% of chart height)
-            const volumeHeight = (chartHeight - chartPadding * 2) * 0.2;
-            const priceAreaHeight = (chartHeight - chartPadding * 2) * 0.8;
-            const volumeBaseY = chartHeight - chartPadding;
+            const volumeHeight = (chartHeight - vPad * 2) * 0.2;
+            const priceAreaHeight = (chartHeight - vPad * 2) * 0.8;
+            const volumeBaseY = chartHeight - vPad;
             const openPrice = historicalPrices[0].price;
             
             if (historicalPrices[0].volume) {
@@ -2861,7 +2866,7 @@
                 const maxVolume = Math.max(...volumes);
                 
                 historicalPrices.forEach((data, i) => {
-                    const x = (i / (historicalPrices.length - 1)) * (historicalWidth - chartPadding * 2) + chartPadding;
+                    const x = (i / (historicalPrices.length - 1)) * (historicalWidth - chartPadding - vPad) + chartPadding;
                     const volHeight = (data.volume / maxVolume) * volumeHeight;
                     
                     priceCtx.fillStyle = data.price >= openPrice ? 'rgba(23, 191, 99, 0.3)' : 'rgba(224, 36, 94, 0.3)';
@@ -2874,8 +2879,8 @@
             priceCtx.lineWidth = 1;
             priceCtx.setLineDash([4, 6]);
             priceCtx.beginPath();
-            priceCtx.moveTo(historicalWidth, chartPadding);
-            priceCtx.lineTo(historicalWidth, chartHeight - chartPadding);
+            priceCtx.moveTo(historicalWidth, vPad);
+            priceCtx.lineTo(historicalWidth, chartHeight - vPad);
             priceCtx.stroke();
             priceCtx.setLineDash([]);
             
@@ -2909,7 +2914,7 @@
             priceCtx.stroke();
             
             // Add gradient fill under the line (animated)
-            const gradient = priceCtx.createLinearGradient(0, chartPadding, 0, chartHeight - chartPadding);
+            const gradient = priceCtx.createLinearGradient(0, vPad, 0, chartHeight - vPad);
             gradient.addColorStop(0, gradientColor1);
             gradient.addColorStop(1, gradientColor2);
             
@@ -2924,8 +2929,8 @@
                 }
             });
             
-            priceCtx.lineTo(visiblePoints[visiblePoints.length - 1].x, chartHeight - chartPadding);
-            priceCtx.lineTo(chartPadding, chartHeight - chartPadding);
+            priceCtx.lineTo(visiblePoints[visiblePoints.length - 1].x, chartHeight - vPad);
+            priceCtx.lineTo(chartPadding, chartHeight - vPad);
             priceCtx.closePath();
             priceCtx.fill();
             
@@ -2950,10 +2955,10 @@
                 zoneBg.addColorStop(0, 'rgba(29,161,242,0.03)');
                 zoneBg.addColorStop(1, 'rgba(29,161,242,0.08)');
                 priceCtx.fillStyle = zoneBg;
-                priceCtx.fillRect(historicalWidth, chartPadding, predictionWidth, chartHeight - chartPadding * 2);
+                priceCtx.fillRect(historicalWidth, vPad, predictionWidth, chartHeight - vPad * 2);
 
                 // ── Gradient fill under forecast curve ──
-                const fGrad = priceCtx.createLinearGradient(0, chartPadding, 0, chartHeight - chartPadding);
+                const fGrad = priceCtx.createLinearGradient(0, vPad, 0, chartHeight - vPad);
                 const isUpForecast = predictionPoints[predictionPoints.length - 1].price >= lastPoint.price;
                 const fColor = isUpForecast ? '29,161,242' : '224,36,94';
                 fGrad.addColorStop(0, `rgba(${fColor},0.25)`);
@@ -2962,8 +2967,8 @@
                 priceCtx.beginPath();
                 priceCtx.moveTo(lastPoint.x, lastPoint.y);
                 predictionPoints.forEach(p => priceCtx.lineTo(p.x, p.y));
-                priceCtx.lineTo(predictionPoints[predictionPoints.length - 1].x, chartHeight - chartPadding);
-                priceCtx.lineTo(lastPoint.x, chartHeight - chartPadding);
+                priceCtx.lineTo(predictionPoints[predictionPoints.length - 1].x, chartHeight - vPad);
+                priceCtx.lineTo(lastPoint.x, chartHeight - vPad);
                 priceCtx.closePath();
                 priceCtx.fillStyle = fGrad;
                 priceCtx.fill();
