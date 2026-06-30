@@ -1153,6 +1153,11 @@
                 <a href="#" class="section-action" onclick="showPerformanceModal(event)">Detailed Report</a>
             </div>
             
+            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:#e1e8ed;">
+                <span><span style="display:inline-block;width:12px;height:12px;background:#1da1f2;border-radius:2px;margin-right:6px;vertical-align:middle;"></span>CPU Usage</span>
+                <span><span style="display:inline-block;width:12px;height:12px;background:#17bf63;border-radius:2px;margin-right:6px;vertical-align:middle;"></span>Memory Usage</span>
+                <span><span style="display:inline-block;width:12px;height:12px;background:#ffad1f;border-radius:2px;margin-right:6px;vertical-align:middle;"></span>API Calls</span>
+            </div>
             <canvas id="systemChart" class="system-chart"></canvas>
         </div>
         
@@ -2106,128 +2111,75 @@
         }
         
         async function drawSystemChart() {
-            const width = systemChart.width = systemChart.offsetWidth;
-            const height = systemChart.height = systemChart.offsetHeight;
-            
-            // Clear canvas
+            const dpr = window.devicePixelRatio || 1;
+            systemChart.width = systemChart.offsetWidth * dpr;
+            systemChart.height = systemChart.offsetHeight * dpr;
+            systemCtx.setTransform(1, 0, 0, 1, 0, 0);
+            systemCtx.scale(dpr, dpr);
+            const width = systemChart.offsetWidth;
+            const height = systemChart.offsetHeight;
+
             systemCtx.clearRect(0, 0, width, height);
-            
+
             // Fetch real-time data
             const perfData = await fetchSystemPerformance();
-            
+
             if (perfData) {
-                // Update history with real data
                 performanceHistory.cpu.push(perfData.cpu.percent);
                 performanceHistory.memory.push(perfData.memory.percent);
-                performanceHistory.api.push(Math.min(perfData.api_calls * 0.5, 100)); // Scale API calls to percentage
-                
-                // Keep only last 24 points
+                performanceHistory.api.push(Math.min(perfData.api_calls * 0.5, 100));
+
                 if (performanceHistory.cpu.length > 24) {
                     performanceHistory.cpu.shift();
                     performanceHistory.memory.shift();
                     performanceHistory.api.shift();
                 }
             }
-            
+
             const numPoints = performanceHistory.cpu.length;
             if (numPoints === 0) return;
-            
-            // Draw grid lines
+
+            // Padding so lines never touch the canvas edges
+            const padTop = 12;
+            const padBottom = 10;
+            const drawH = height - padTop - padBottom;
+
+            const toY = (pct) => padTop + drawH - (pct / 100) * drawH;
+            const toX = (i) => (numPoints === 1) ? width / 2 : (i / (numPoints - 1)) * width;
+
+            // Grid
             systemCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             systemCtx.lineWidth = 1;
-            
-            // Horizontal lines
-            for (let i = 0; i <= 5; i++) {
-                const y = (height / 5) * i;
+            for (let i = 0; i <= 4; i++) {
+                const y = padTop + (i / 4) * drawH;
                 systemCtx.beginPath();
                 systemCtx.moveTo(0, y);
                 systemCtx.lineTo(width, y);
                 systemCtx.stroke();
             }
-            
-            // Vertical lines
             for (let i = 0; i <= 10; i++) {
-                const x = (width / 10) * i;
+                const x = (i / 10) * width;
                 systemCtx.beginPath();
-                systemCtx.moveTo(x, 0);
-                systemCtx.lineTo(x, height);
+                systemCtx.moveTo(x, padTop);
+                systemCtx.lineTo(x, padTop + drawH);
                 systemCtx.stroke();
             }
-            
-            // Draw CPU line
-            systemCtx.strokeStyle = '#1da1f2';
-            systemCtx.lineWidth = 2;
-            systemCtx.beginPath();
-            
-            performanceHistory.cpu.forEach((value, i) => {
-                const x = (i / (numPoints - 1)) * width;
-                const y = height - (value / 100) * height;
-                
-                if (i === 0) {
-                    systemCtx.moveTo(x, y);
-                } else {
-                    systemCtx.lineTo(x, y);
-                }
-            });
-            
-            systemCtx.stroke();
-            
-            // Draw Memory line
-            systemCtx.strokeStyle = '#17bf63';
-            systemCtx.lineWidth = 2;
-            systemCtx.beginPath();
-            
-            performanceHistory.memory.forEach((value, i) => {
-                const x = (i / (numPoints - 1)) * width;
-                const y = height - (value / 100) * height;
-                
-                if (i === 0) {
-                    systemCtx.moveTo(x, y);
-                } else {
-                    systemCtx.lineTo(x, y);
-                }
-            });
-            
-            systemCtx.stroke();
-            
-            // Draw API line
-            systemCtx.strokeStyle = '#ffad1f';
-            systemCtx.lineWidth = 2;
-            systemCtx.beginPath();
-            
-            performanceHistory.api.forEach((value, i) => {
-                const x = (i / (numPoints - 1)) * width;
-                const y = height - (value / 100) * height;
-                
-                if (i === 0) {
-                    systemCtx.moveTo(x, y);
-                } else {
-                    systemCtx.lineTo(x, y);
-                }
-            });
-            
-            systemCtx.stroke();
-            
-            // Draw legend
-            const legendY = 20;
-            const legendItems = [
-                { color: '#1da1f2', label: 'CPU Usage' },
-                { color: '#17bf63', label: 'Memory Usage' },
-                { color: '#ffad1f', label: 'API Calls' }
-            ];
-            
-            legendItems.forEach((item, i) => {
-                const legendX = 20 + (i * 120);
-                
-                // Draw color box
-                systemCtx.fillStyle = item.color;
-                systemCtx.fillRect(legendX, legendY, 12, 12);
-                
-                // Draw label
-                systemCtx.fillStyle = '#e1e8ed';
-                systemCtx.font = '12px Inter, sans-serif';
-                systemCtx.fillText(item.label, legendX + 18, legendY + 10);
-            });
+
+            // Helper: draw a data line
+            function drawLine(data, color) {
+                systemCtx.strokeStyle = color;
+                systemCtx.lineWidth = 2;
+                systemCtx.beginPath();
+                data.forEach((v, i) => {
+                    const x = toX(i), y = toY(v);
+                    i === 0 ? systemCtx.moveTo(x, y) : systemCtx.lineTo(x, y);
+                });
+                systemCtx.stroke();
+            }
+
+            drawLine(performanceHistory.cpu,    '#1da1f2');
+            drawLine(performanceHistory.memory, '#17bf63');
+            drawLine(performanceHistory.api,    '#ffad1f');
         }
         
         // Initial chart draw

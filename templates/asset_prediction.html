@@ -2725,7 +2725,7 @@
         let predictionPoints = []; // For future predictions (yellow spikes)
         let predictionValues = []; // Raw predicted values for scaling
         let pendingPredictionValue = null;
-        let chartPadding = 40;
+        let chartPadding = 68; // wide enough for labels like "$4,077.30"
         let chartWidth = 0;
         let chartHeight = 0;
         let historicalWidth = 0; // Tracks the pixel boundary between history & forecast zones
@@ -2808,18 +2808,18 @@
             priceCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             priceCtx.lineWidth = 1;
             
-            // Horizontal lines with smart price labels
-            for (let i = 0; i <= 5; i++) {
-                const y = chartPadding + (i / 5) * (chartHeight - chartPadding * 2);
+            // Horizontal lines with smart price labels — 4 divisions = 5 lines, well-spaced
+            for (let i = 0; i <= 4; i++) {
+                const y = chartPadding + (i / 4) * (chartHeight - chartPadding * 2);
                 priceCtx.beginPath();
                 priceCtx.moveTo(chartPadding, y);
                 priceCtx.lineTo(chartWidth - chartPadding, y);
                 priceCtx.stroke();
-                
+
                 // Draw price labels with smart formatting
-                const labelPrice = maxPrice - (i / 5) * priceRange;
+                const labelPrice = maxPrice - (i / 4) * priceRange;
                 priceCtx.fillStyle = '#8899a6';
-                priceCtx.font = '11px Inter, sans-serif';
+                priceCtx.font = '10px Inter, sans-serif';
                 priceCtx.textAlign = 'right';
                 
                 // Smart price formatting based on value
