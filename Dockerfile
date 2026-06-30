@@ -57,4 +57,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
     || exit 1
 
 # Railway injects $PORT; fall back to 8000 for other platforms
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT} --workers 2 --proxy-headers
+# --workers 1: the auto-retrain scheduler runs in-process at startup (see main.py
+# lifespan). Multiple workers would each start their own scheduler and race to
+# retrain/write the same model files concurrently.
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers

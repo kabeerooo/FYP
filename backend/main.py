@@ -153,6 +153,16 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"⚠️ Error creating default admin: {e}")
 
+    # Pull latest retrained models from Firebase Storage before serving predictions —
+    # Railway's local disk doesn't survive restarts, so the bundled models could be stale.
+    if PREDICTION_ENGINE:
+        try:
+            from model_sync import download_latest_models
+            from prediction_engine import MODELS_DIR, ASSET_CONFIG
+            download_latest_models(MODELS_DIR, ASSET_CONFIG)
+        except Exception as e:
+            print(f"⚠️ Could not sync models from Firebase Storage: {e}")
+
     # Start daily auto-retrain scheduler
     if PREDICTION_ENGINE:
         try:

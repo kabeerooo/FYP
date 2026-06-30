@@ -1045,7 +1045,14 @@ def retrain_asset(ticker: str) -> dict:
         joblib.dump(f_scaler, str(feat_path))
         joblib.dump(t_scaler, str(tgt_path))
 
-        # 7 ── clear cache so next prediction uses fresh model
+        # 7 ── persist to Firebase Storage (Railway's local disk doesn't survive restarts)
+        try:
+            from model_sync import upload_model_files
+            upload_model_files(ticker, [model_path, feat_path, tgt_path])
+        except Exception as exc:
+            print(f"⚠️  Model persistence skipped for {ticker}: {exc}")
+
+        # 8 ── clear cache so next prediction uses fresh model
         with _cache_lock:
             _model_cache.pop(ticker, None)
             _scaler_cache.pop(ticker, None)

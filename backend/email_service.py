@@ -28,6 +28,7 @@ db = firestore.client()
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "").strip()
 SENDER_EMAIL = "neurosight.fyp@gmail.com"
 SENDER_NAME = "NeuroSight"
+APP_BASE_URL = os.getenv("APP_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 
 # Validate API key format (only if package is available)
 if BREVO_AVAILABLE:
@@ -196,7 +197,7 @@ def send_welcome_email(email: str, name: str):
                     <p style="color: #657786; font-size: 16px; line-height: 1.6;">
                         Your email has been successfully verified. You're all set to start exploring!
                     </p>
-                    <a href="http://127.0.0.1:8000/login.html" class="button">Login to Dashboard</a>
+                    <a href="{APP_BASE_URL}/login.html" class="button">Login to Dashboard</a>
                 </div>
                 <div class="footer">
                     <p>© 2026 NeuroSight. All rights reserved.</p>
