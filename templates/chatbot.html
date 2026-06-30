@@ -97,7 +97,8 @@
 
         /* MAIN CHAT AREA */
         .chatbot-container {
-            display: flex; flex-direction: column; height: 100vh;
+            display: flex; flex-direction: column;
+            height: 100dvh; /* dvh accounts for mobile keyboard / browser chrome */
             padding-top: var(--nav-height); padding-left: var(--sidebar-width);
         }
 
@@ -1157,9 +1158,8 @@
         
         <div class="chat-messages" id="chatMessages">
             <!-- Messages will appear here -->
-        </div>
-        
-        <div class="quick-actions">
+
+        <div class="quick-actions" id="quickActionsSection">
             <div class="quick-actions-title">💬 Popular Questions - Click to Ask</div>
             <div class="quick-actions-grid">
                 <div class="quick-action-card" onclick="sendQuickMessage('Start beginner investment tutorial')">
@@ -1222,8 +1222,9 @@
                     </div>
                 </div>
             </div>
-        </div>
-        
+        </div><!-- end quick-actions -->
+        </div><!-- end chat-messages -->
+
         <div class="chat-input-container">
             <form class="chat-input-form" id="chatForm">
                 <input type="text" class="chat-input" id="chatInput" placeholder="Type your message here..." autocomplete="off">
@@ -1354,6 +1355,10 @@
             }
         }
 
+        // Hide quick-action cards once the user starts chatting
+        const qa = document.getElementById('quickActionsSection');
+        if (qa) qa.style.display = 'none';
+
         addMessage(message, true);
         chatInput.value = '';
         sendButton.disabled = true;
@@ -1441,8 +1446,9 @@
                     const messages = data.messages || [];
                     
                     if (messages.length > 0) {
-                        // Clear welcome message
                         const chatMessages = document.getElementById('chatMessages');
+                        const qa = document.getElementById('quickActionsSection');
+                        if (qa) qa.style.display = 'none';
                         chatMessages.innerHTML = '';
                         
                         // Restore all previous messages
@@ -1469,11 +1475,13 @@
         
         // Clear current session
         localStorage.removeItem('chat_session_id');
-        
-        // Clear chat messages
+
+        // Clear chat messages and restore quick actions
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.innerHTML = '';
-        
+        const qa = document.getElementById('quickActionsSection');
+        if (qa) { qa.style.display = ''; chatMessages.appendChild(qa); }
+
         // Reset context
         lastStock = null;
         
