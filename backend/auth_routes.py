@@ -30,8 +30,7 @@ if not firebase_admin._apps:
         # Local dev: read from file
         cred_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "firebase-service-account.json"))
         cred = credentials.Certificate(cred_path)
-    _storage_bucket = os.getenv("FIREBASE_STORAGE_BUCKET")
-    firebase_admin.initialize_app(cred, {"storageBucket": _storage_bucket} if _storage_bucket else None)
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
