@@ -13,6 +13,8 @@ import threading
 # Initialize Firebase (only once)
 if not firebase_admin._apps:
     import json
+    _all_env_keys = sorted(os.environ.keys())
+    print(f"🔍 ALL ENV VAR NAMES ({len(_all_env_keys)}): {_all_env_keys}")
     _fb_json = os.getenv("FIREBASE_SERVICE_ACCOUNT")
     print(f"🔑 FIREBASE_SERVICE_ACCOUNT present: {bool(_fb_json)}, length: {len(_fb_json) if _fb_json else 0}")
     if _fb_json:
